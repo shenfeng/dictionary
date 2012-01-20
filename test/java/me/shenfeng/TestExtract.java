@@ -4,6 +4,11 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
 
 import org.apache.commons.io.IOUtils;
 import org.junit.Assert;
@@ -12,8 +17,8 @@ import org.junit.Test;
 public class TestExtract {
 
 	public DictItem get(String word) throws FileNotFoundException, IOException {
-		String html = IOUtils.toString(new FileInputStream(
-				"test/java/" + word));
+		String html = IOUtils
+				.toString(new FileInputStream("test/java/" + word));
 		return Extrator.extract(html);
 	}
 
@@ -91,6 +96,21 @@ public class TestExtract {
 	}
 
 	@Test
+	public void testBytes() {
+		for (int i = 0; i < 255; i++) {
+			byte b = (byte) i;
+			Assert.assertTrue(i + "", i == Writter.getUnsigned(b));
+		}
+
+		for (int i = 32768; i < 65535; i++) {
+
+			byte[] bytes = Writter.getBytes(i);
+			Assert.assertTrue(i + "", Writter.getShort(bytes, 0) == i);
+		}
+
+	}
+
+	@Test
 	public void testCommercially() throws FileNotFoundException, IOException {
 		DictItem current = get("commercially");
 		Assert.assertEquals("class noun", "adverb", current.wordClass);
@@ -98,6 +118,17 @@ public class TestExtract {
 		Assert.assertEquals("explanation count is 3", 3, current.items.size());
 		Assert.assertFalse(current.isFreqSpoken1);
 		Assert.assertFalse(current.isFreqWritten1);
+	}
+
+	@Test
+	public void testShatke1() throws FileNotFoundException, IOException {
+		DictItem current = get("shake_1");
+		System.out.println(current);
+		Assert.assertEquals("class noun", "verb", current.wordClass);
+		Assert.assertEquals("word", "turn", current.word);
+		Assert.assertEquals("explanation count is 86", 86, current.items.size());
+		Assert.assertTrue(current.isFreqSpoken1);
+		Assert.assertTrue(current.isFreqWritten1);
 	}
 
 	@Test
@@ -118,28 +149,36 @@ public class TestExtract {
 		int length = 0;
 		int count = 0;
 		int ziped = 0;
+		Map<String, Integer> types = new HashMap<String, Integer>();
+		// Set<String> types = new HashSet<String>();
 		int[] levels = new int[10];
 		for (File f : files) {
 			if (f.isFile()) {
 				try {
 					DictItem item = get(f);
+					String type = item.getC();
+					Integer typeCount = types.get(type);
+					if (typeCount == null)
+						typeCount = 0;
+					types.put(type, typeCount + 1);
 					count++;
-					String s = item.toString();
-					ziped += Zipper.zip(s).length;
+//					String s = item.toString();
+//					ziped += Zipper.zip(s).length;
 
 					for (int i = 0; i < levels.length; ++i) {
-						levels[i] += Zipper.zip2(s, i).length;
+						// levels[i] += Zipper.zip2(s, i).length;
 					}
 
-					length += s.length();
-					if (s.length() < 400) {
-//						System.out.println(s.length() + "\t" + f);
-					}
+//					length += s.length();
+//					if (s.length() < 400) {
+						// System.out.println(s.length() + "\t" + f);
+//					}
 					if (item.imags.size() > 1) {
-						 System.out.println(f + "\t" + item.imags);
+						// System.out.println(f + "\t" + item.imags);
 					}
 				} catch (RuntimeException e) {
 					System.out.println(f);
+					e.printStackTrace();
 				}
 			}
 		}
@@ -149,6 +188,8 @@ public class TestExtract {
 		for (int i = 0; i < levels.length; i++) {
 			System.out.println(i + "\t" + levels[i]);
 		}
-
+		for (Map.Entry<String, Integer> e : types.entrySet()) {
+			System.out.println(e);
+		}
 	}
 }

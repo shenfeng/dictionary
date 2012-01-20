@@ -1,73 +1,80 @@
 package me.shenfeng;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class DictItem {
 
-    public String word;
-    public List<ExplainItem> items = new ArrayList<ExplainItem>();
-    public String wordClass;
-    public boolean isFreqSpoken1;
-    public boolean isFreqWritten1;
-    public List<String> imags = new ArrayList<String>();
+	public String word;
+	public List<ExplainItem> items = new ArrayList<ExplainItem>(8);
+	public String wordClass;
+	public boolean isFreqSpoken1;
+	public boolean isFreqWritten1;
 
-    public String toString() {
-        String s = word + ": " + wordClass;
-        if (isFreqSpoken1) {
-            s += " S1";
-        }
-        if (isFreqWritten1) {
-            s += " W1";
-        }
-        s += "\n";
-        int i = 1;
-        for (ExplainItem item : items) {
-            s += " " + i + ", " + item;
-            i++;
-        }
-        return s;
-    }
-}
+	static final Map<String, String> classes;
 
-class ExplainItem {
-    public String registerlab; // spoken
-    public String gram;// countable
-    public String meaning;
-    public String helpWithMeaning;
-    public List<String> examples = new ArrayList<String>();
-    public List<GramExa> extas = new ArrayList<GramExa>();
+	static {
+		classes = new HashMap<String, String>();
+		classes.put("noun", "n.");
+		// classes.put("adverb", "adv.");
+		classes.put("verb", "v.");
+		classes.put("preposition", "prep.");
+		classes.put("adjective", "adj.");
+		// classes.put("pronoun", "pron.");
+	}
 
-    public String toString() {
-        String s = "";
-        if (helpWithMeaning != null) {
-            s += " [" + helpWithMeaning + "] ";
-        }
-        s += meaning;
-        if (gram != null) {
-            s += " " + gram;
-        }
+	public List<String> imags = new ArrayList<String>(1);
 
-        s += "\n";
-        for (String e : examples) {
-            s += "  >: " + e + "\n";
-        }
-        for (GramExa extra : extas) {
-            s += extra;
-        }
-        return s;
-    }
-}
+	public String getW() {
+		return word;
+	}
 
-class GramExa {
-    public String phrase;
-    public List<String> examples = new ArrayList<String>();
+	public List<ExplainItem> getL() {
+		return items;
+	}
 
-    public String toString() {
-        String s = "   $: " + phrase + "\n";
-        for (String e : examples) {
-            s += "    >: " + e + "\n";
-        }
-        return s;
-    }
+	public String getT() {
+		if (wordClass.isEmpty()) // do no keep empty type in file
+			return null;
+		// do them first
+		wordClass = wordClass.replace("adverb", "adv."); // verb
+		wordClass = wordClass.replace("pronoun", "pron."); // noun
+		for (Map.Entry<String, String> e : classes.entrySet()) {
+			wordClass = wordClass.replace(e.getKey(), e.getValue());
+		}
+		return wordClass;
+	}
+
+	public boolean isFS() {
+		return isFreqSpoken1;
+	}
+
+	public boolean isFW() {
+		return isFreqWritten1;
+	}
+
+	public List<String> getI() {
+		if (imags.size() > 0)
+			return imags;
+		return null;
+	}
+
+	public String toString() {
+		String s = word + ": " + wordClass;
+		if (isFreqSpoken1) {
+			s += " S1";
+		}
+		if (isFreqWritten1) {
+			s += " W1";
+		}
+		s += "\n";
+		int i = 1;
+		for (ExplainItem item : items) {
+			s += " " + i + ", " + item;
+			i++;
+		}
+		return s;
+	}
 }

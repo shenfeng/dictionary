@@ -16,7 +16,7 @@ public class Extrator {
 
 	final static int GZIP_MAGIC = 0x8b1f;
 
-	private final static byte[] header = { (byte) GZIP_MAGIC, // Magic number
+	public final static byte[] header = { (byte) GZIP_MAGIC, // Magic number
 																// (short)
 			(byte) (GZIP_MAGIC >> 8), // Magic number (short)
 			Deflater.DEFLATED, // Compression method (CM)
@@ -79,7 +79,8 @@ public class Extrator {
 			String imgSrc = img.attr("src");
 			String[] split = imgSrc.split("/");
 			String s = split[3];
-			item.imags.add(s.substring(2, s.length() - 4));
+			if (s.length() > 4)
+				item.imags.add(s.substring(2, s.length() - 4));
 		}
 
 		Elements senses = content.select(".Sense");
