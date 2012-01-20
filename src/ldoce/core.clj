@@ -27,12 +27,15 @@
   (re-find #"me" (str (class e))))
 
 (defn- keep? [k v]
-  (and (not (= k :class)) v))
+  (and (not (= k :class)) v
+       ;; do not keep empty list
+       (if (list-like? v) (> (count v) 0) true)))
 
 (defn decode-bean [c]
   (let [target
         (if (my-bean? c)
-          (if (list-like? c) c (bean c)) c)]
+          (if (list-like? c) c (bean c))
+          c)]
     (cond
      (map? target) (into {}
                          (for [[k v] target d (list (decode-bean v))
@@ -79,6 +82,7 @@
 
 
 (defn split-to-disk []
+  (println "--------------")
   (time (Writter/splitToDisk item-to-json)))
 
 (defn process-all []

@@ -14,8 +14,8 @@
              "-XX:-DisableExplicitGC"
              "-XX:+UseCompressedStrings"
              ;; "-XX:-UseLoopPredicate"
-             "-Xmx3048m"
-             "-Xms3048m"]
+             "-Xmx2048m"
+             "-Xms2048m"]
   :javac-options {:source "1.6" :target "1.6" :debug "true" :fork "true"}
   :java-source-path "src/java"
   :dev-dependencies [[swank-clojure "1.4.0-SNAPSHOT"]

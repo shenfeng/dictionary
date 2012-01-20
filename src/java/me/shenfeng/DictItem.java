@@ -56,9 +56,7 @@ public class DictItem {
 	}
 
 	public List<String> getI() {
-		if (imags.size() > 0)
-			return imags;
-		return null;
+		return imags;
 	}
 
 	public String toString() {

@@ -16,7 +16,17 @@ public class ExplainItem {
 	}
 
 	public String getG() {
-		return gram;
+		if (gram != null) {
+			gram = gram.replace("uncountable", "UC.");
+			gram = gram.replace("countable", "C.");
+			gram = gram.replace("intransitive", "vi.");
+			gram = gram.replace("transitive", "vt.");
+			// gram = gram.replace("singular", "s");
+			gram = gram.replace("plural", "pl.");
+			return gram;
+		} else {
+			return gram;
+		}
 	}
 
 	public String getM() {

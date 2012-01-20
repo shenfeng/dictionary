@@ -4,11 +4,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeSet;
 
 import org.apache.commons.io.IOUtils;
 import org.junit.Assert;
@@ -149,30 +144,36 @@ public class TestExtract {
 		int length = 0;
 		int count = 0;
 		int ziped = 0;
-		Map<String, Integer> types = new HashMap<String, Integer>();
+
+		Counter<String> types = new Counter<String>();
+		Counter<String> grammer = new Counter<String>();
+		// Map<String, Integer> types = new HashMap<String, Integer>();
 		// Set<String> types = new HashSet<String>();
 		int[] levels = new int[10];
 		for (File f : files) {
 			if (f.isFile()) {
 				try {
 					DictItem item = get(f);
-					String type = item.getC();
-					Integer typeCount = types.get(type);
-					if (typeCount == null)
-						typeCount = 0;
-					types.put(type, typeCount + 1);
+					types.put(item.getT());
 					count++;
-//					String s = item.toString();
-//					ziped += Zipper.zip(s).length;
+					for (ExplainItem i: item.getL()) {
+						grammer.put(i.getG());
+					}
+					
+					// for (int i : levels) {
+					//
+					// }
+					// String s = item.toString();
+					// ziped += Zipper.zip(s).length;
 
 					for (int i = 0; i < levels.length; ++i) {
 						// levels[i] += Zipper.zip2(s, i).length;
 					}
 
-//					length += s.length();
-//					if (s.length() < 400) {
-						// System.out.println(s.length() + "\t" + f);
-//					}
+					// length += s.length();
+					// if (s.length() < 400) {
+					// System.out.println(s.length() + "\t" + f);
+					// }
 					if (item.imags.size() > 1) {
 						// System.out.println(f + "\t" + item.imags);
 					}
@@ -188,8 +189,11 @@ public class TestExtract {
 		for (int i = 0; i < levels.length; i++) {
 			System.out.println(i + "\t" + levels[i]);
 		}
-		for (Map.Entry<String, Integer> e : types.entrySet()) {
-			System.out.println(e);
-		}
+
+		System.out.println("types------------------------------");
+		types.dump();
+		System.out.println("grama-===============================");
+		grammer.dump();
+
 	}
 }

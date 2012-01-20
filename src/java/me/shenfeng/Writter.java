@@ -43,7 +43,6 @@ public class Writter {
 			IOException {
 
 		File dir = new File("/home/feng/www.ldoceonline.com/dictionary");
-		FileOutputStream fs = new FileOutputStream("/tmp/dbdata");
 		Map<String, Object> items = new TreeMap<String, Object>();
 		File[] files = dir.listFiles();
 		int count = 0;
@@ -56,6 +55,13 @@ public class Writter {
 			}
 		}
 		System.out.println("size: " + items.size() + " files: " + count);
+		write(items, toJsonStr);
+	}
+
+	public static void write(Map<String, Object> items, IFn toJsonStr)
+			throws IOException {
+		FileOutputStream fs = new FileOutputStream("/tmp/dbdata");
+
 		for (Map.Entry<String, Object> entry : items.entrySet()) {
 			String word = entry.getKey();
 			Object item = entry.getValue();
@@ -97,6 +103,7 @@ public class Writter {
 		int index = 0;
 		byte buffer[] = new byte[1024 * 128];
 		int b = 0;
+		List<String> list = new ArrayList<String>(50000);
 		while (index < bytes.length) {
 			int i = 0;
 			while (true) {
@@ -108,15 +115,23 @@ public class Writter {
 				}
 			}
 			String word = new String(buffer, 0, i);
-			System.out.println(word);
+			list.add(word);
+			// System.out.println(word);
 
 			int size = getShort(bytes, index);
 			// System.out.println(size);
 
 			index += 2;
-			String str = Zipper.unzip(bytes, index, size);
-			System.out.println(str);
+			// String str = Zipper.unzip(bytes, index, size);
+			// System.out.println(str);
 			index += size;
+		}
+		int i = 0;
+		for (String str : list) {
+			System.out.printf("%17s", str);
+			if (++i % 8 == 0) {
+				System.out.println();
+			}
 		}
 	}
 }

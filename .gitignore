@@ -1,4 +1,7 @@
 /pom.xml
+target
+.classpath
+.project
 *jar
 /lib
 /classes
