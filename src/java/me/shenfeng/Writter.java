@@ -61,7 +61,8 @@ public class Writter {
 	public static void write(Map<String, Object> items, IFn toJsonStr)
 			throws IOException {
 		FileOutputStream fs = new FileOutputStream("/tmp/dbdata");
-
+		int count = items.size();
+		fs.write(getBytes(count)); // how many words
 		for (Map.Entry<String, Object> entry : items.entrySet()) {
 			String word = entry.getKey();
 			Object item = entry.getValue();
@@ -100,7 +101,7 @@ public class Writter {
 		RandomAccessFile ra = new RandomAccessFile("/tmp/dbdata", "r");
 		byte bytes[] = new byte[(int) ra.length()];
 		ra.readFully(bytes);
-		int index = 0;
+		int index = 2;
 		byte buffer[] = new byte[1024 * 128];
 		int b = 0;
 		List<String> list = new ArrayList<String>(50000);
@@ -119,7 +120,7 @@ public class Writter {
 			// System.out.println(word);
 
 			int size = getShort(bytes, index);
-			// System.out.println(size);
+			System.out.println(size + "\t" + index);
 
 			index += 2;
 			// String str = Zipper.unzip(bytes, index, size);
