@@ -1,15 +1,18 @@
 package me.shenfeng;
 
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.TreeSet;
 import java.util.zip.Deflater;
 
 import org.apache.commons.io.IOUtils;
@@ -56,6 +59,14 @@ public class Writter {
 		}
 		System.out.println("size: " + items.size() + " files: " + count);
 		write(items, toJsonStr);
+		TreeSet<String> allWords = new TreeSet<String>(items.keySet());
+		BufferedWriter writer = new BufferedWriter(new FileWriter(
+				"/tmp/allwords"));
+		for (String word : allWords) {
+			writer.write(word);
+			writer.write("\n");
+		}
+		writer.close();
 	}
 
 	public static void write(Map<String, Object> items, IFn toJsonStr)
