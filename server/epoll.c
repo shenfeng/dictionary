@@ -2,6 +2,10 @@
 #include "epoll.h"
 #include "search.h"
 
+#ifdef HANDLE_STATIC
+#include "static.h"
+#endif
+
 static char *json_headers = "HTTP/1.1 200 OK\r\nContent-Length: %lu\r\nContent-Encoding: gzip\r\nContent-Type: application/Json\r\n\r\n";
 
 static void make_socket_non_blokcing(int sfd) {
@@ -60,7 +64,7 @@ int nonb_write_headers(int fd, char* bufp, int nleft, dict_epoll_data *ptr) {
             return 0;           // blocked, do not continue
         }
 #ifdef VERBOSE
-        printf("write headers count %d, fd %d\n", nwritten, fd);
+        printf("write headers count %d, sock_fd %d\n", nwritten, fd);
 #endif
         nleft -= nwritten;
         bufp += nwritten;
@@ -84,9 +88,34 @@ static char gzip_header[] = {
     0                     // Operating system (OS)
 };
 
+#ifdef HANDLE_STATIC
+int nonb_sendfile(dict_epoll_data *ptr) {
+    int nsent;
+    off_t offset = ptr->file_offset;
+    while (ptr->file_cnt) {
+        nsent = sendfile(ptr->sock_fd, ptr->static_fd, &offset, ptr->file_cnt);
+        if(nsent > 0) {
+            ptr->file_cnt -= nsent;
+            ptr->file_offset = offset; //  save for next call
+        } else {
+#ifdef DEBUG
+            printf("sendfile return early: %d\n", nsent);
+#endif
+            return 0;
+        }
+#ifdef DEBUG
+        printf("sendfile sock_fd: %d, file_fd: %d, bytes: %d\n",
+               ptr->sock_fd, ptr->static_fd, nsent);
+#endif
+    }
+    close(ptr->static_fd);
+    return 1;
+}
+#endif
+
 int nonb_write_body(int fd, char* bufp, int nleft, dict_epoll_data *ptr) {
     int nwritten, gzip_header_nleft = ptr->gzip_header_cnt;
-    while(gzip_header_nleft > 0) {
+    while(gzip_header_nleft > 0) { // write 10 bytes gzip header
         if((nwritten = write(fd, gzip_header, gzip_header_nleft)) <= 0) {
             if (errno == EAGAIN || errno == EWOULDBLOCK) {
                 ptr->gzip_header_cnt = gzip_header_nleft;
@@ -94,7 +123,7 @@ int nonb_write_body(int fd, char* bufp, int nleft, dict_epoll_data *ptr) {
             return 0;           // blocked, do not continue
         }
 #ifdef VERBOSE
-        printf("write gzip header %d, fd %d\n", nwritten, fd);
+        printf("write gzip header %d, sock_fd %d\n", nwritten, fd);
 #endif
         gzip_header_nleft -= nwritten;
     }
@@ -118,29 +147,6 @@ int nonb_write_body(int fd, char* bufp, int nleft, dict_epoll_data *ptr) {
     return 1;
 }
 
-void prepare_for_write(int epollfd, int fd, dict_epoll_data *resp) {
-    struct epoll_event ev;
-    ev.data.fd = fd;
-    // ev.data.ptr = resp;           // user data
-    ev.events = EPOLLOUT;         // write
-    if (epoll_ctl(epollfd, EPOLL_CTL_MOD, fd, &ev) == -1) {
-        perror("epoll_ctl: for write");
-        exit(EXIT_FAILURE);
-    }
-}
-
-void prepare_for_read(int epollfd, int fd, int op) {
-    struct epoll_event ev;
-    dict_epoll_data *data = malloc(sizeof(dict_epoll_data));
-    data->fd = fd;
-    ev.data.ptr = data;
-    ev.events = EPOLLIN | EPOLLOUT | EPOLLET; //  write, edge triggered
-    if (epoll_ctl(epollfd, op, fd, &ev) == -1) {
-        perror("epoll_ctl: for read");
-        exit(EXIT_FAILURE);
-    }
-}
-
 void accept_incoming(int listen_sock, int epollfd) {
     struct sockaddr_in clientaddr;
     socklen_t clientlen = sizeof clientaddr;
@@ -153,15 +159,18 @@ void accept_incoming(int listen_sock, int epollfd) {
         }
     } else {
 #ifdef DEBUG
-        printf("accept %s:%d, fd is %d\n", inet_ntoa(clientaddr.sin_addr),
+        printf("accept %s:%d, sock_fd is %d\n", inet_ntoa(clientaddr.sin_addr),
                ntohs(clientaddr.sin_port), conn_sock);
 #endif
         make_socket_non_blokcing(conn_sock);
         struct epoll_event ev;
         dict_epoll_data *data = malloc(sizeof(dict_epoll_data));
-        data->fd = conn_sock;
-        data->body_cnt = 0;
+        data->sock_fd = conn_sock;
+        data->body_cnt = 0;     // init, default value
         data->headers_cnt = 0;
+#ifdef HANDLE_STATIC
+        data->file_cnt = 0;
+#endif
         ev.data.ptr = data;
         ev.events = EPOLLIN | EPOLLOUT | EPOLLET; //  read, edge triggered
         if (epoll_ctl(epollfd, EPOLL_CTL_ADD, conn_sock, &ev) == -1) {
@@ -172,33 +181,39 @@ void accept_incoming(int listen_sock, int epollfd) {
 }
 
 void close_and_clean(dict_epoll_data *ptr, int epollfd) {
-    epoll_ctl(epollfd, EPOLL_CTL_DEL, ptr->fd, NULL);
-    close(ptr->fd);
+    epoll_ctl(epollfd, EPOLL_CTL_DEL, ptr->sock_fd, NULL);
+    close(ptr->sock_fd);
     free(ptr);
 }
 
 void handle_request(dict_epoll_data *ptr, char uri[]) {
     int uri_length = strlen(uri);
-    // /d/:word
     if (uri_length > 3 && uri[0] == '/' && uri[1] == 'd' && uri[2] == '/') {
-        char *loc = search_word(uri + 3); // 3 is /d/
+        char *loc = search_word(uri + 3); // 3 is /d/:word
         if (loc) {
             char *headers = ptr->headers;
             ptr->gzip_header_cnt = 10; // gzip header size is 10
             int length = read_short(loc, 0);
             sprintf(headers, json_headers, length + 10);
-            int cont = nonb_write_headers(ptr->fd, headers, strlen(headers), ptr);
+            int cont = nonb_write_headers(ptr->sock_fd, headers, strlen(headers), ptr);
             if (cont) {
-                nonb_write_body(ptr->fd, loc + 2, length, ptr);
+                nonb_write_body(ptr->sock_fd, loc + 2, length, ptr);
             } else {
                 ptr->body_bufptr = loc;
                 ptr->body_cnt = length;
             }
         }
     }
-#ifdef DEBUG
+#ifdef HANDLE_STATIC
     else {
-
+        uri = uri + 1;
+        if (strlen(uri) == 0) {
+            uri = ".";
+        }
+#ifdef DEBUG
+        printf("sock_fd %d, request file %s\n", ptr->sock_fd, uri);
+#endif
+        serve_file(ptr, uri);
     }
 #endif
 }
@@ -206,7 +221,7 @@ void handle_request(dict_epoll_data *ptr, char uri[]) {
 void process_request(dict_epoll_data *ptr, int epollfd) {
     rio_t rio;
     char buf[MAXLINE], method[16], uri[MAXLINE];
-    rio_readinitb(&rio, ptr->fd);
+    rio_readinitb(&rio, ptr->sock_fd);
     int c = rio_readlineb(&rio, buf, MAXLINE);
     if (c > 0) {
         sscanf(buf, "%s %s", method, uri); // http version is not cared
@@ -214,12 +229,12 @@ void process_request(dict_epoll_data *ptr, int epollfd) {
         printf("method: %s, uri: %s, count: %d, line: %s", method, uri, c, buf);
 #endif
         // read all
-        while(c && buf[0] != '\n' && buf[1] != '\n') { // \n || \r\n
+        while(buf[0] != '\n' && buf[1] != '\n') { // \n || \r\n
             c = rio_readlineb(&rio, buf, MAXLINE);
             if (c == -1) { break; }
             else if (c == 0 ) { // EOF, remote close conn
 #ifdef DEBUG
-                printf("reading header: close and clean: %d\n", ptr->fd); //
+                printf("reading header: clean, close sock_fd %d\n", ptr->sock_fd); //
 #endif
                 close_and_clean(ptr, epollfd);
                 return;
@@ -228,7 +243,7 @@ void process_request(dict_epoll_data *ptr, int epollfd) {
         handle_request(ptr, uri);
     } else if (c == 0) {       // EOF, remote close conn
 #ifdef DEBUG
-        printf("reading line: close and clean: %d\n", ptr->fd);
+        printf("reading line: clean, close sock_fd %d\n", ptr->sock_fd);
 #endif
         close_and_clean(ptr, epollfd);
     }
@@ -237,15 +252,19 @@ void process_request(dict_epoll_data *ptr, int epollfd) {
 void write_response(dict_epoll_data *ptr, int epollfd) {
     if (ptr->headers_cnt) {
         char *bufp = ptr->headers_bufptr;
-        int cont = nonb_write_headers(ptr->fd, bufp, strlen(bufp), ptr);
+        int cont = nonb_write_headers(ptr->sock_fd, bufp, strlen(bufp), ptr);
         if (cont) {
             bufp = ptr->body_bufptr;
-            nonb_write_body(ptr->fd, bufp, strlen(bufp), ptr);
+            nonb_write_body(ptr->sock_fd, bufp, strlen(bufp), ptr);
         }
     } else if (ptr->body_cnt) {
         char *bufp = ptr->body_bufptr;
-        nonb_write_body(ptr->fd, bufp, strlen(bufp), ptr);
+        nonb_write_body(ptr->sock_fd, bufp, strlen(bufp), ptr);
     }
+
+#ifdef HANDLE_STATIC
+    nonb_sendfile(ptr);
+#endif
 }
 
 int enter_loop(int listen_sock, int epollfd) {
@@ -271,7 +290,7 @@ int enter_loop(int listen_sock, int epollfd) {
                 dict_epoll_data *ptr = (dict_epoll_data*) epoll_events[i].data.ptr;
                 if (events & EPOLLIN)
 #ifdef DEBUG
-                    printf("process request, fd %d\n", ptr->fd);
+                    printf("process request, sock_fd %d\n", ptr->sock_fd);
 #endif
                 process_request(ptr, epollfd);
                 if (events & EPOLLOUT)

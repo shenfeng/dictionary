@@ -47,7 +47,7 @@ char* search_word(char* target) {
         } else {
             int offset = index_data[mid] + strlen(target) + 1;
 #ifdef DEBUG
-            printf("find %s, offset is %d\n", target, offset);
+            printf("find \'%s\', offset is %d\n", target, offset);
 #endif
             return dict_data + offset;
         }

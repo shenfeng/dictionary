@@ -19,7 +19,7 @@
 #define LISTENQ  32             // second argument to listen()
 #define MAXLINE 512             // max length of a line
 #define MAX_EVENTS 32
-#define RESP_HEADER_LENTH 150
+#define RESP_HEADER_LENTH 190
 
 // #define TEST_EPOLL
 
@@ -37,7 +37,12 @@ typedef struct sockaddr SA;
 
 typedef struct {
     char* body_bufptr;          // offset in dict array data
-    int fd;                     // file descriptor
+#ifdef HANDLE_STATIC
+    int static_fd;
+    int file_cnt;               // unwrite file
+    off_t file_offset;
+#endif
+    int sock_fd;                     // file descriptor
     int body_cnt;               // how remainning byte
     int gzip_header_cnt;
     int headers_cnt;            // header length unwrite
@@ -48,6 +53,9 @@ typedef struct {
 int open_nonb_listenfd(int port);
 int nonb_write_headers(int fd, char* bufp, int nleft, dict_epoll_data *ptr);
 int nonb_write_body(int fd, char* bufp, int nleft, dict_epoll_data *ptr);
+#ifdef HANDLE_STATIC
+int nonb_sendfile(dict_epoll_data *ptr);
+#endif
 void accept_incoming(int listen_sock, int epollfd);
 void close_and_clean(dict_epoll_data *ptr, int epollfd);
 int enter_loop(int listen_sock, int epollfd);
