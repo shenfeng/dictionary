@@ -117,14 +117,40 @@ public class Writter {
 			}
 			String word = new String(buffer, 0, i);
 			list.add(word);
+
+			if (word.equals("aa")) {
+				int size = getShort(bytes, index);
+				System.out.println("offset is " + index);
+
+				byte[] header = Extrator.header;
+				byte buffer2[] = new byte[size + header.length];
+				for (int j = 0; j < header.length; j++) {
+					buffer2[j] = header[j];
+				}
+
+				for (int j = 0; j < size; ++j) {
+					buffer2[j + header.length] = bytes[j + index + 2];
+				}
+				for (int j = 0; j < buffer2.length; j++) {
+					if (j % 16 == 0) {
+						System.out.println();
+					}
+					int by = getUnsigned(buffer2[j]);
+
+					System.out.print(Integer.toHexString(by) + " ");
+				}
+				System.out.println("======");
+
+			}
+
 			// System.out.println(word);
 
 			int size = getShort(bytes, index);
-			System.out.println(size + "\t" + index);
+			System.out.println(word + "\t" + size + "\t" + index);
 
 			index += 2;
-			// String str = Zipper.unzip(bytes, index, size);
-			// System.out.println(str);
+			String str = Zipper.unzip(bytes, index, size);
+			System.out.println(str);
 			index += size;
 		}
 		int i = 0;
