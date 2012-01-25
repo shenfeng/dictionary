@@ -58,9 +58,9 @@ void serve_file(dict_epoll_data *ptr, char *uri) {
     int conn_sock = ptr->sock_fd;
     int ffd = open(uri, O_RDONLY);
 #ifdef DEBUG
-    printf("serve_file, file: %s, fd: %d\n", uri, ffd);
+    printf("sock_fd: %d, openfile: %s, fd: %d\n", ptr->sock_fd, uri, ffd);
 #endif
-    if(ffd <= 0){
+    if(ffd <= 0) {
         perror(uri);
         char *msg = "File not found";
         client_error(conn_sock, 404, "Not found", msg);

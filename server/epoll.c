@@ -1,57 +1,28 @@
 #include "rio.h"
 #include "epoll.h"
 #include "search.h"
+#include "network.h"
 
 #ifdef HANDLE_STATIC
 #include "static.h"
 #endif
 
+#define GZIP_MAGIC 0x8b1f
+
+static char gzip_header[] = {
+    (char) GZIP_MAGIC,          // Magic number (short)
+    (char) (GZIP_MAGIC >> 8),   // Magic number (short)
+    8,                    // Compression method (CM) Deflater.DEFLATED
+    0,                    // Flags (FLG)
+    0,                    // Modification time MTIME (int)
+    0,                    // Modification time MTIME (int)
+    0,                    // Modification time MTIME (int)
+    0,                    // Modification time MTIME (int)
+    0,                    // Extra flags (XFLG)
+    0                     // Operating system (OS)
+};
+
 static char *json_headers = "HTTP/1.1 200 OK\r\nContent-Length: %lu\r\nContent-Encoding: gzip\r\nContent-Type: application/Json\r\n\r\n";
-
-static void make_socket_non_blokcing(int sfd) {
-    int flags;
-    flags = fcntl(sfd, F_GETFL, 0);
-    if (flags == -1) { perror("fcntl"); exit(1); }
-    flags |= O_NONBLOCK;
-    if(fcntl(sfd, F_SETFL, flags) == -1) {
-        perror("fcntl"); exit(EXIT_FAILURE);
-    }
-}
-
-int open_nonb_listenfd(int port) {
-    int listenfd, optval=1;
-    struct sockaddr_in serveraddr;
-    // Create a socket descriptor
-    if ((listenfd = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
-        perror("ERROR");
-        exit(EXIT_FAILURE);
-    }
-    // Eliminates "Address already in use" error from bind.
-    if (setsockopt(listenfd, SOL_SOCKET, SO_REUSEADDR,
-                   (const void *)&optval , sizeof(int)) < 0)
-        return -1;
-    // 6 is TCP's protocol number
-    // enable this, much faster : 4000 req/s -> 17000 req/s
-    if (setsockopt(listenfd, 6, TCP_CORK,
-                   (const void *)&optval , sizeof(int)) < 0)
-        return -1;
-    /* Listenfd will be an endpoint for all requests to port
-       on any IP address for this host */
-    memset(&serveraddr, 0, sizeof(serveraddr));
-    serveraddr.sin_family = AF_INET;
-    serveraddr.sin_addr.s_addr = htonl(INADDR_ANY);
-    serveraddr.sin_port = htons((unsigned short)port);
-    if (bind(listenfd, (SA *)&serveraddr, sizeof(serveraddr)) < 0) {
-        perror("bind");
-        exit(EXIT_FAILURE);
-    }
-    make_socket_non_blokcing(listenfd);
-    if (listen(listenfd, LISTENQ) < 0) {
-        perror("listen");
-        exit(EXIT_FAILURE);
-    }
-    return listenfd;
-}
 
 int nonb_write_headers(int fd, char* bufp, int nleft, dict_epoll_data *ptr) {
     int nwritten;
@@ -73,21 +44,6 @@ int nonb_write_headers(int fd, char* bufp, int nleft, dict_epoll_data *ptr) {
     return 1;
 }
 
-#define GZIP_MAGIC 0x8b1f
-
-static char gzip_header[] = {
-    (char) GZIP_MAGIC,          // Magic number (short)
-    (char) (GZIP_MAGIC >> 8),   // Magic number (short)
-    8,                    // Compression method (CM) Deflater.DEFLATED
-    0,                    // Flags (FLG)
-    0,                    // Modification time MTIME (int)
-    0,                    // Modification time MTIME (int)
-    0,                    // Modification time MTIME (int)
-    0,                    // Modification time MTIME (int)
-    0,                    // Extra flags (XFLG)
-    0                     // Operating system (OS)
-};
-
 #ifdef HANDLE_STATIC
 int nonb_sendfile(dict_epoll_data *ptr) {
     int nsent;
@@ -108,7 +64,10 @@ int nonb_sendfile(dict_epoll_data *ptr) {
                ptr->sock_fd, ptr->static_fd, nsent);
 #endif
     }
-    close(ptr->static_fd);
+    if (ptr->static_fd) {
+        close(ptr->static_fd);
+        ptr->static_fd = 0;
+    }
     return 1;
 }
 #endif
@@ -150,8 +109,8 @@ int nonb_write_body(int fd, char* bufp, int nleft, dict_epoll_data *ptr) {
 void accept_incoming(int listen_sock, int epollfd) {
     struct sockaddr_in clientaddr;
     socklen_t clientlen = sizeof clientaddr;
-    int conn_sock = accept(listen_sock, (SA *)&clientaddr, &clientlen);
-    if (conn_sock == -1) {
+    int conn_sock = accept4(listen_sock, (SA *)&clientaddr, &clientlen, SOCK_NONBLOCK);
+    if (conn_sock <= 0) {
         if (errno == EAGAIN || errno == EWOULDBLOCK) {
             // printf("all connection\n"); //  we have done all
         } else {
@@ -162,17 +121,19 @@ void accept_incoming(int listen_sock, int epollfd) {
         printf("accept %s:%d, sock_fd is %d\n", inet_ntoa(clientaddr.sin_addr),
                ntohs(clientaddr.sin_port), conn_sock);
 #endif
-        make_socket_non_blokcing(conn_sock);
+        // make_socket_non_blokcing(conn_sock);
         struct epoll_event ev;
         dict_epoll_data *data = malloc(sizeof(dict_epoll_data));
         data->sock_fd = conn_sock;
         data->body_cnt = 0;     // init, default value
+        data->gzip_header_cnt = 10;
         data->headers_cnt = 0;
 #ifdef HANDLE_STATIC
         data->file_cnt = 0;
+        data->static_fd = 0;
 #endif
         ev.data.ptr = data;
-        ev.events = EPOLLIN | EPOLLOUT | EPOLLET; //  read, edge triggered
+        ev.events = EPOLLIN | EPOLLOUT | EPOLLRDHUP| EPOLLET; //  read, edge triggered
         if (epoll_ctl(epollfd, EPOLL_CTL_ADD, conn_sock, &ev) == -1) {
             perror("epoll_ctl: for read");
             exit(EXIT_FAILURE);
@@ -261,7 +222,6 @@ void write_response(dict_epoll_data *ptr, int epollfd) {
         char *bufp = ptr->body_bufptr;
         nonb_write_body(ptr->sock_fd, bufp, strlen(bufp), ptr);
     }
-
 #ifdef HANDLE_STATIC
     nonb_sendfile(ptr);
 #endif
@@ -274,27 +234,32 @@ int enter_loop(int listen_sock, int epollfd) {
     while(1) {
         nfds = epoll_wait(epollfd, epoll_events, MAX_EVENTS, -1);
 #ifdef VERBOSE
-        printf("\nepoll wait return %d events\n", nfds);
+        printf("epoll wait return %d events\n", nfds);
 #endif
         for (int i = 0; i < nfds; ++ i) {
             events = epoll_events[i].events;
-            // TODO make sure that's all
-            if ((events & EPOLLERR) || (events & EPOLLRDHUP)) {
-#ifdef DEBUG
-                printf("epoll error condition\n");
-#endif
-                close_and_clean(epoll_events[i].data.ptr, epollfd);
-            } else if (epoll_events[i].data.fd == listen_sock) {
+            if (epoll_events[i].data.fd == listen_sock) {
                 accept_incoming(listen_sock, epollfd);
             }  else {
                 dict_epoll_data *ptr = (dict_epoll_data*) epoll_events[i].data.ptr;
-                if (events & EPOLLIN)
+                if ((events & EPOLLRDHUP) || (events & EPOLLERR)
+                    || (events & EPOLLRDHUP)) {
 #ifdef DEBUG
-                    printf("process request, sock_fd %d\n", ptr->sock_fd);
+                    printf("error condiction, events: %d, fd: %d\n",
+                           events, ptr->sock_fd);
 #endif
-                process_request(ptr, epollfd);
-                if (events & EPOLLOUT)
-                    write_response(ptr, epollfd);
+                    close_and_clean(ptr, epollfd);
+                } else {
+                    if (events & EPOLLIN) {
+#ifdef DEBUG
+                        printf("process request, sock_fd %d\n", ptr->sock_fd);
+#endif
+                        process_request(ptr, epollfd);
+                    }
+                    if (events & EPOLLOUT) {
+                        write_response(ptr, epollfd);
+                    }
+                }
             }
         }
     }

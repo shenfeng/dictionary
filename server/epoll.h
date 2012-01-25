@@ -11,15 +11,14 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sys/epoll.h>
+#include <sys/types.h>
 #include <sys/socket.h>
 #include <sys/stat.h>
-#include <sys/types.h>
 #include <unistd.h>
 
-#define LISTENQ  32             // second argument to listen()
 #define MAXLINE 512             // max length of a line
-#define MAX_EVENTS 32
-#define RESP_HEADER_LENTH 190
+#define MAX_EVENTS 256
+#define RESP_HEADER_LENTH 120
 
 // #define TEST_EPOLL
 
@@ -32,22 +31,19 @@
 #endif
 #endif
 
-// Simplifies calls to bind(), connect(), and accept()
-typedef struct sockaddr SA;
-
 typedef struct {
-    char* body_bufptr;          // offset in dict array data
-#ifdef HANDLE_STATIC
-    int static_fd;
-    int file_cnt;               // unwrite file
-    off_t file_offset;
-#endif
     int sock_fd;                     // file descriptor
+    char* body_bufptr;          // offset in dict array data
     int body_cnt;               // how remainning byte
     int gzip_header_cnt;
     int headers_cnt;            // header length unwrite
     char headers[RESP_HEADER_LENTH];
     char *headers_bufptr;       // header pointer
+#ifdef HANDLE_STATIC
+    int static_fd;
+    int file_cnt;               // unwrite file
+    off_t file_offset;
+#endif
 } dict_epoll_data;
 
 int open_nonb_listenfd(int port);
