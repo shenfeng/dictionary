@@ -4,6 +4,7 @@
   var $q = $("#q"),
       $ac = $("#ac"),
       to_html = Mustache.to_html,
+      ajax_queue = [],
       max_candiates = 25,
       all_words,
       tmpls = window.D.tmpls,
@@ -98,8 +99,27 @@
 
   $q.focus();
 
+  function remove_from_array (array, e) {
+    var result = [];
+    for(var i = 0; i < array.length; i++) {
+      if(array[i] !== e) {
+        result.push(array[i]);
+      }
+    }
+    return result;
+  }
+
+  function cancel_all_ajax () {
+    for(var i = 0; i < ajax_queue.length; i++) {
+      ajax_queue[i].abort();
+    }
+    ajax_queue = [];
+  }
+
   function show_search_result (q, force_refresh) {
-    $.getJSON("/d/" + q, function (data) {
+    cancel_all_ajax();
+    var xhr = $.getJSON("/d/" + q, function (data) {
+      ajax_queue = remove_from_array(ajax_queue, xhr);
       show_nearby_words(q, force_refresh);
       $q.val(q);
       if(!_.isArray(data)) { data = [data]; }
@@ -109,6 +129,7 @@
       });
       $("#explain").empty().append(html);
     });
+    ajax_queue.push(xhr);
   }
 
   $(document).keydown(function (e) {
