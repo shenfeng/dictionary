@@ -1,4 +1,7 @@
 #include "network.h"
+#include "rio.h"
+#include "epoll.h"
+
 
 void make_socket_non_blokcing(int sfd) {
     int flags;
@@ -8,6 +11,17 @@ void make_socket_non_blokcing(int sfd) {
     if(fcntl(sfd, F_SETFL, flags) == -1) {
         perror("fcntl"); exit(EXIT_FAILURE);
     }
+}
+
+void client_error(int fd, int status, char *msg, char *longmsg) {
+    char buf[MAXLINE];
+    sprintf(buf, "HTTP/1.1 %d %s\r\n", status, msg);
+    sprintf(buf + strlen(buf),
+            "Content-length: %lu\r\n\r\n", strlen(longmsg));
+    if (longmsg[0]) {
+        sprintf(buf + strlen(buf), "%s", longmsg);
+    }
+    writen(fd, buf, strlen(buf));
 }
 
 void url_decode(char* src, char* dest, int max) {

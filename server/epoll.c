@@ -163,6 +163,8 @@ void handle_request(dict_epoll_data *ptr, char uri[]) {
                 ptr->body_bufptr = loc;
                 ptr->body_cnt = length;
             }
+        } else {
+            client_error(ptr->sock_fd, 404, "Not found", "");
         }
     }
 #ifdef HANDLE_STATIC
@@ -201,7 +203,8 @@ void process_request(dict_epoll_data *ptr, int epollfd) {
                 return;
             }
         }
-        handle_request(ptr, uri);
+        url_decode(uri, buf, MAXLINE);
+        handle_request(ptr, buf); // reuse buffer
     } else if (c == 0) {       // EOF, remote close conn
 #ifdef DEBUG
         printf("reading line: clean, close sock_fd %d\n", ptr->sock_fd);

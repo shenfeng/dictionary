@@ -1,4 +1,5 @@
 #include "static.h"
+#include "network.h"
 
 static mime_map meme_types [] = {
     {".css", "text/css"},
@@ -18,15 +19,6 @@ static mime_map meme_types [] = {
 };
 
 static char *default_mime_type = "text/plain";
-
-void client_error(int fd, int status, char *msg, char *longmsg){
-    char buf[MAXLINE];
-    sprintf(buf, "HTTP/1.1 %d %s\r\n", status, msg);
-    sprintf(buf + strlen(buf),
-            "Content-length: %lu\r\n\r\n", strlen(longmsg));
-    sprintf(buf + strlen(buf), "%s", longmsg);
-    writen(fd, buf, strlen(buf));
-}
 
 static const char* get_mime_type(char *filename){
     char *dot = strrchr(filename, '.');

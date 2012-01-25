@@ -20,6 +20,7 @@ typedef struct sockaddr SA;
 void make_socket_non_blokcing(int sfd);
 int open_nonb_listenfd(int port);
 void url_decode(char* src, char* dest, int max);
+void client_error(int fd, int status, char *msg, char *longmsg);
 
 #endif /* _NETWORK_H_ */
 
