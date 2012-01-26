@@ -32,10 +32,10 @@
 #endif
 
 typedef struct {
-    int sock_fd;                     // file descriptor
+    int sock_fd;                // file descriptor
     char* body_bufptr;          // offset in dict array data
     int body_cnt;               // how remainning byte
-    int gzip_header_cnt;
+
     int headers_cnt;            // header length unwrite
     char headers[RESP_HEADER_LENTH];
     char *headers_bufptr;       // header pointer

@@ -74,15 +74,23 @@ public class Writter {
 		FileOutputStream fs = new FileOutputStream("/tmp/dbdata");
 		int count = items.size();
 		fs.write(getBytes(count)); // how many words
+
 		for (Map.Entry<String, Object> entry : items.entrySet()) {
 			String word = entry.getKey();
-			Object item = entry.getValue();
-			String json = (String) toJsonStr.invoke(item);
+			String json = (String) toJsonStr.invoke(entry.getValue());
 			fs.write(word.getBytes());
-			fs.write(0); // NULL terminate String
-			byte[] bytes = Zipper.zip2(json, Deflater.BEST_COMPRESSION);
-			fs.write(getBytes(bytes.length));
-			fs.write(bytes);
+			fs.write(0); // NULL terminate String@
+			byte[] bytes = json.getBytes();
+			byte[] gzipped = Zipper.zip2(json, Deflater.BEST_COMPRESSION);
+			if (bytes.length < gzipped.length) {
+				fs.write(getBytes(bytes.length));
+				fs.write(0); // save unziped
+				fs.write(bytes);
+			} else {
+				fs.write(getBytes(gzipped.length));
+				fs.write(1); // saved zipped
+				fs.write(gzipped);
+			}
 		}
 		fs.close();
 	}

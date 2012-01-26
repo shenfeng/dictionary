@@ -28,7 +28,7 @@ static int* build_index(int total_length) {
     while(index < total_length) {
         index_data[word_index++] = index;
         while(dict_data[index++]);   // skip word, word is terminated by \0
-        index += read_short(dict_data, index) + 2;
+        index += read_short(dict_data, index) + 3;
     }
     return index_data;
 }

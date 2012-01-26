@@ -82,7 +82,6 @@
 
 
 (defn split-to-disk []
-  (println "--------------")
   (time (Writter/splitToDisk item-to-json)))
 
 (defn process-all []

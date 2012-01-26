@@ -7,22 +7,9 @@
 #include "static.h"
 #endif
 
-#define GZIP_MAGIC 0x8b1f
+static char *gziped_json_headers = "HTTP/1.1 200 OK\r\nContent-Length: %lu\r\nContent-Encoding: gzip\r\nContent-Type: application/Json\r\n\r\n";
 
-static char gzip_header[] = {
-    (char) GZIP_MAGIC,          // Magic number (short)
-    (char) (GZIP_MAGIC >> 8),   // Magic number (short)
-    8,                    // Compression method (CM) Deflater.DEFLATED
-    0,                    // Flags (FLG)
-    0,                    // Modification time MTIME (int)
-    0,                    // Modification time MTIME (int)
-    0,                    // Modification time MTIME (int)
-    0,                    // Modification time MTIME (int)
-    0,                    // Extra flags (XFLG)
-    0                     // Operating system (OS)
-};
-
-static char *json_headers = "HTTP/1.1 200 OK\r\nContent-Length: %lu\r\nContent-Encoding: gzip\r\nContent-Type: application/Json\r\n\r\n";
+static char *json_headers = "HTTP/1.1 200 OK\r\nContent-Length: %lu\r\nContent-Type: application/Json\r\n\r\n";
 
 int nonb_write_headers(int fd, char* bufp, int nleft, dict_epoll_data *ptr) {
     int nwritten;
@@ -73,21 +60,7 @@ int nonb_sendfile(dict_epoll_data *ptr) {
 #endif
 
 int nonb_write_body(int fd, char* bufp, int nleft, dict_epoll_data *ptr) {
-    int nwritten, gzip_header_nleft = ptr->gzip_header_cnt;
-    while(gzip_header_nleft > 0) { // write 10 bytes gzip header
-        if((nwritten = write(fd, gzip_header, gzip_header_nleft)) <= 0) {
-            if (errno == EAGAIN || errno == EWOULDBLOCK) {
-                ptr->gzip_header_cnt = gzip_header_nleft;
-            }
-            return 0;           // blocked, do not continue
-        }
-#ifdef VERBOSE
-        printf("write gzip header %d, sock_fd %d\n", nwritten, fd);
-#endif
-        gzip_header_nleft -= nwritten;
-    }
-    ptr->gzip_header_cnt = 0; //  done all
-
+    int nwritten;
     while(nleft > 0) {
         if((nwritten = write(fd, bufp, nleft)) <= 0) {
             if (errno == EAGAIN || errno == EWOULDBLOCK) {
@@ -126,7 +99,6 @@ void accept_incoming(int listen_sock, int epollfd) {
         dict_epoll_data *data = malloc(sizeof(dict_epoll_data));
         data->sock_fd = conn_sock;
         data->body_cnt = 0;     // init, default value
-        data->gzip_header_cnt = 10;
         data->headers_cnt = 0;
 #ifdef HANDLE_STATIC
         data->file_cnt = 0;
@@ -153,12 +125,13 @@ void handle_request(dict_epoll_data *ptr, char uri[]) {
         char *loc = search_word(uri + 3); // 3 is /d/:word
         if (loc) {
             char *headers = ptr->headers;
-            ptr->gzip_header_cnt = 10; // gzip header size is 10
             int length = read_short(loc, 0);
-            sprintf(headers, json_headers, length + 10);
+            char *h = *(loc + 2) ? gziped_json_headers: json_headers;
+            sprintf(headers, h, length);
             int cont = nonb_write_headers(ptr->sock_fd, headers, strlen(headers), ptr);
             if (cont) {
-                nonb_write_body(ptr->sock_fd, loc + 2, length, ptr);
+                // 2 byte for size, 1 byte for zipped or not
+                nonb_write_body(ptr->sock_fd, loc + 3, length, ptr);
             } else {
                 ptr->body_bufptr = loc;
                 ptr->body_cnt = length;

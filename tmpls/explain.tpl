@@ -10,7 +10,7 @@
             <ol class="egs">
               {{#e}}
                 <li>
-                  {{.}}
+                  <p class="example">{{.}}</p>
                 </li>
               {{/e}}
             </ol>
