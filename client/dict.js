@@ -5,7 +5,7 @@
       $ac = $("#ac"),
       to_html = Mustache.to_html,
       ajax_queue = [],
-      max_candiates = 25,
+      max_candiates = 27,
       all_words,
       tmpls = window.D.tmpls,
       trigger_ac = true,
@@ -43,7 +43,7 @@
   }
 
   delegateEvents($ac, {
-    'click li': function (e) {
+    'click a': function (e) {
       $("li.selected").removeClass('selected');
       var $this = $(this);
       $this.addClass('selected');
@@ -94,7 +94,12 @@
 
   $.get('/allwords', function (data) {
     all_words = data.split("\n");
-    show_empty_query_candidates();
+    if(location.hash) {
+      var hash = location.hash.substring(1);
+      show_search_result(hash, true);
+    } else {
+      show_empty_query_candidates();
+    }
   });
 
   $q.focus();
@@ -116,18 +121,21 @@
     ajax_queue = [];
   }
 
-  function show_search_result (q, force_refresh) {
+  function show_search_result (q, force_refresh, update_value) {
     cancel_all_ajax();
     var xhr = $.getJSON("/d/" + q, function (data) {
       ajax_queue = remove_from_array(ajax_queue, xhr);
       show_nearby_words(q, force_refresh);
-      $q.val(q);
+      if(!update_value) {
+        $q.val(q);
+      }
       if(!_.isArray(data)) { data = [data]; }
       var html = to_html(tmpls.explain, {
         items: data,
         word: q
       });
       $("#explain").empty().append(html);
+      location.hash = q;
     });
     ajax_queue.push(xhr);
   }
@@ -177,11 +185,18 @@
         }
       }
       show_candidates(result);
+      if(result.length) {
+        show_search_result(result[0], false, true);
+      }
     }
   }
 
   $q.keydown(function (e) {
-    if(e.which !== 27 && e.which !== 40 && e.which !== 38 && e.which !== 13) {
+    if(!e.ctrlKey
+       && e.which != 16
+       && e.which !== 27 && e.which !== 40
+       && e.which !== 38 && e.which !== 13
+       && e.which != 18) {      // alt key
       setTimeout(auto_complete, 1);
     }
   });

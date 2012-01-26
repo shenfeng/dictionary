@@ -3,10 +3,23 @@
   {{#items}}
     <li class="item">
       <span class="type">{{t}}</span>
+      <ul class="imags">
+        {{#i}}
+          <img src="/imgs/00{{.}}.jpg"/>
+        {{/i}}
+      </ul>
       <ul>
         {{#l}}
           <li>
-            <p class="meaning">{{m}}</p>
+            <p class="explain">
+              {{#g}}
+                <span class="group">[{{g}}]</span>
+              {{/g}}
+              {{#h}}
+                <span class="help">[{{h}}]</span>
+              {{/h}}
+              <span class="meaning">{{m}}</span>
+            </p>
             <ol class="egs">
               {{#e}}
                 <li>
@@ -14,6 +27,20 @@
                 </li>
               {{/e}}
             </ol>
+            <ul class="extra">
+              {{#x}}
+                <li>
+                  <p class="phrase">{{p}}</p>
+                  <ol class="egs">
+                    {{#e}}
+                      <li>
+                        <p class="example">{{.}}</p>
+                      </li>
+                    {{/e}}
+                  </ol>
+                </li>
+              {{/x}}
+            </ul>
           </li>
         {{/l}}
       </ul>

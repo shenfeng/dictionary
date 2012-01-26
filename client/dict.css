@@ -31,7 +31,7 @@ html {
     /* position: absolute; */
     /* z-index: 100; */
     width: 100%;
-    background: #eee;
+/* background: #eee; */
 /* box-shadow: 1px 2px 1px #ccc; */
 }
 
@@ -42,8 +42,18 @@ html {
 }
 
 #ac li {
-    cursor: pointer;
+    /* cursor: pointer; */
     padding: 3px 4px;
+}
+
+#ac li a {
+    text-decoration: none;
+    display: block;
+    color: #111;
+}
+
+#ac li:hover {
+    background: #ddd;
 }
 
 #ac li.selected {
@@ -63,6 +73,7 @@ html {
 
 .meaning {
     margin: 0.5em 0;
+    font-size: 14px;
 }
 
 .type {
@@ -88,8 +99,29 @@ html {
     position: fixed;
     width: 330px;
     float: left;
+    height: 100%;
+    overflow-y: auto;
+    overflow-x: hidden;
+    box-shadow: 1px 2px 1px #ccc;
 }
 
 .clear {
     clear: both;
+}
+
+.group, .help {
+    color: #333;
+    font-size: 13px;
+    /* font-style: italic; */
+}
+
+.explain {
+    font-size: 14px;
+    margin: 0.5em 0;
+}
+
+p.phrase {
+    margin: 0.5em 0;
+    color: blue;
+    font-size: 13px;
 }
