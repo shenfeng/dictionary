@@ -124,14 +124,18 @@ void handle_request(dict_epoll_data *ptr, char uri[]) {
     if (uri_length > 3 && uri[0] == '/' && uri[1] == 'd' && uri[2] == '/') {
         char *loc = search_word(uri + 3); // 3 is /d/:word
         if (loc) {
-            char *headers = ptr->headers;
             int length = read_short(loc, 0);
-            char *h = *(loc + 2) ? gziped_json_headers: json_headers;
+            char *h = gziped_json_headers;
+            if (length > 0xe000) { // first bit: is gzipped
+                length -= 0xe000;
+                h = json_headers;
+            }
+            char *headers = ptr->headers;
             sprintf(headers, h, length);
             int cont = nonb_write_headers(ptr->sock_fd, headers, strlen(headers), ptr);
             if (cont) {
                 // 2 byte for size, 1 byte for zipped or not
-                nonb_write_body(ptr->sock_fd, loc + 3, length, ptr);
+                nonb_write_body(ptr->sock_fd, loc + 2, length, ptr);
             } else {
                 ptr->body_bufptr = loc;
                 ptr->body_cnt = length;

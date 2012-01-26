@@ -83,12 +83,12 @@ public class Writter {
 			byte[] bytes = json.getBytes();
 			byte[] gzipped = Zipper.zip2(json, Deflater.BEST_COMPRESSION);
 			if (bytes.length < gzipped.length) {
-				fs.write(getBytes(bytes.length));
-				fs.write(0); // save unziped
+				fs.write(getBytes(bytes.length + 0xe000));
+				// fs.write(0); // save unziped
 				fs.write(bytes);
 			} else {
 				fs.write(getBytes(gzipped.length));
-				fs.write(1); // saved zipped
+				// fs.write(1); // saved zipped
 				fs.write(gzipped);
 			}
 		}

@@ -24,11 +24,15 @@ int read_short(char *buf, int offset) {
 
 static int* build_index(int total_length) {
     int* index_data = (int*)malloc(sizeof(int) * word_count);
-    int word_index = 0, index = 2; // ignore first 2 byte, that's word count
+    int word_index = 0, next_count, index = 2; // ignore first 2 byte, that's word count
     while(index < total_length) {
         index_data[word_index++] = index;
         while(dict_data[index++]);   // skip word, word is terminated by \0
-        index += read_short(dict_data, index) + 3;
+        next_count = read_short(dict_data, index);
+        if (next_count > 0xe000) { // first bit: is gzipped
+            next_count -= 0xe000;
+        }
+        index += next_count + 2;
     }
     return index_data;
 }
@@ -74,9 +78,9 @@ int main(int argc, char** argv) {
     init_dict_search();
     char * targets[] = {
         "yuppify", "bird-watcher", "arthritis", "ali, muhammad", "-monger",
-        "yukon", "women's studies", "not exits"
+        "yukon", "women's studies", "not exits", "go", "zoo"
     };
-    for(int i = 0; i < 8; ++i) {
+    for(int i = 0; i < 10; ++i) {
         char* result = search_word(targets[i]);
         printf("%s, %p\n",targets[i], result);
     }
