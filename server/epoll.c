@@ -144,7 +144,7 @@ void handle_request(dict_epoll_data *ptr, char uri[]) {
     else {
         uri = uri + 1;
         if (strlen(uri) == 0) {
-            uri = ".";
+            uri = "index.html";
         }
 #ifdef DEBUG
         printf("sock_fd %d, request file %s\n", ptr->sock_fd, uri);
@@ -199,7 +199,9 @@ void write_response(dict_epoll_data *ptr, int epollfd) {
         nonb_write_body(ptr->sock_fd, bufp, strlen(bufp), ptr);
     }
 #ifdef HANDLE_STATIC
-    nonb_sendfile(ptr);
+    if (ptr->file_cnt) {
+        nonb_sendfile(ptr);
+    }
 #endif
 }
 
