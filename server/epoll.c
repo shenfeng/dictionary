@@ -248,16 +248,12 @@ int enter_loop(int listen_sock, int epollfd) {
 }
 
 int main(int argc, char** argv) {
-    // Ignore SIGPIPE signal, so if browser cancels the request, it
-    // won't kill the whole process.
-    signal(SIGPIPE, SIG_IGN);
-
     struct epoll_event ev;
     int listen_sock, efd;
 
     listen_sock = open_nonb_listenfd(9090);
     efd = epoll_create1(0);
-    if (efd == -1) { perror("epoll_create"); exit(1); }
+    if (efd == -1) { perror("epoll_create"); exit(EXIT_FAILURE); }
 
     ev.events = EPOLLIN;        // read
     ev.data.fd = listen_sock;
