@@ -1,100 +1,26 @@
-html, body {
-    margin: 0;
-    padding: 0;
-}
-html {
-    overflow-y: scroll;
-}
-
 .clearfix:before, .clearfix:after { content: ""; display: table; }
 .clearfix:after { clear: both; }
 .clearfix { zoom: 1; }
 
-#page-wrap {
-    width: 1060px;
-    margin: 0 auto;
-}
-
-#q {
-    margin: 30px 0 0 0;
-    /* border: 0; */
-    /* outline: none; */
-    /* margin: 30px auto 0; */
-    display: block;
-    width: 318px;
-    /* width: 300px; */
-    padding: 4px;
-    font-size: 16px;
-}
-
-#ac {
-    /* position: absolute; */
-    /* z-index: 100; */
-    width: 100%;
-/* background: #eee; */
-/* box-shadow: 1px 2px 1px #ccc; */
-}
-
-#ac ul {
-    padding: 0;
-    margin: 0;
-    list-style: none;
-}
-
-#ac li {
-    /* cursor: pointer; */
-    padding: 3px 4px;
-}
-
-#ac li a {
-    text-decoration: none;
-    display: block;
-    color: #111;
-}
-
-#ac li:hover {
-    background: #ddd;
-}
-
-#ac li.selected {
-    background: #ccc;
-}
-
-.egs li p {
-    padding: 0;
-    margin: 0;
-}
-.egs li {
-    font-family: sans-serif;
-    /* font-family: monospace; */
-    /* font-family: sans-serif; */
-    font-size: 13px;
-}
-
-.meaning {
-    margin: 0.5em 0;
-    font-size: 14px;
-}
-
-.type {
-    font-style: italic;
-}
-
-#explain {
-    float: right;
-    padding-left: 10px;
-    width: 720px;
-}
-
-.items {
-    list-style: none;
-    padding: 0;
-}
-
-.item {
-
-}
-
+html, body { margin: 0; padding: 0; }
+html { overflow-y: scroll; }
+#page-wrap { width: 1060px; margin: 0 auto; }
+#ac { width: 100%; }
+#ac ul { padding: 0; margin: 0; list-style: none; }
+#ac li { padding: 3px 4px; }
+#ac li a { text-decoration: none; display: block; color: #111; }
+#ac li:hover { background: #ddd; }
+#ac li.selected { background: #ccc; }
+.egs li p { padding: 0; margin: 0; }
+.egs li { font-family: sans-serif; font-size: 13px; }
+.meaning { margin: 0.5em 0; font-size: 14px; }
+.type { font-style: italic; }
+.example { color: #222; }
+.items { list-style: none; padding: 0; }
+.group, .help { color: #111; font-size: 13px; }
+.explain { font-size: 14px; margin: 0.5em 0; }
+p.phrase { margin: 0.5em 0; color: blue; font-size: 13.5px; }
+#explain { float: right; padding-left: 10px; width: 720px; }
 #selection {
     position: fixed;
     width: 330px;
@@ -104,24 +30,10 @@ html {
     overflow-x: hidden;
     box-shadow: 1px 2px 1px #ccc;
 }
-
-.clear {
-    clear: both;
-}
-
-.group, .help {
-    color: #333;
-    font-size: 13px;
-    /* font-style: italic; */
-}
-
-.explain {
-    font-size: 14px;
-    margin: 0.5em 0;
-}
-
-p.phrase {
-    margin: 0.5em 0;
-    color: blue;
-    font-size: 13.5px;
+#q {
+    margin: 30px 0 0 0;
+    display: block;
+    width: 318px;
+    padding: 4px;
+    font-size: 16px;
 }

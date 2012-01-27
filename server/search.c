@@ -22,6 +22,7 @@ int read_short(char *buf, int offset) {
     return (hi << 8) + low;
 }
 
+// TODO elvis
 static int* build_index(int total_length) {
     int* index_data = (int*)malloc(sizeof(int) * word_count);
     int word_index = 0, next_count, index = 2; // ignore first 2 byte, that's word count

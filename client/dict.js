@@ -145,11 +145,12 @@
     $selected = $("li.selected");
     switch(which) {
     case 27:                    // ESC
-      // $ac.empty();
+      break;
+    case 191:
+      setTimeout(function () { $q.focus(); }, 1);
       break;
     case 13:                    // ENTER
       var q = $selected.text().trim() || $q.val().trim();
-      // $ac.empty();
       show_search_result(q, true);
       break;
     case 40:                    // DOWN

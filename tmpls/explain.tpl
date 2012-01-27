@@ -4,9 +4,7 @@
     <li class="item">
       <span class="type">{{t}}</span>
       <ul class="imags">
-        {{#i}}
-          <img src="/imgs/00{{.}}.jpg"/>
-        {{/i}}
+        {{#i}}<img src="/imgs/00{{.}}.jpg"/>{{/i}}
       </ul>
       <ul>
         {{#l}}
@@ -22,9 +20,7 @@
             </p>
             <ol class="egs">
               {{#e}}
-                <li>
-                  <p class="example">{{.}}</p>
-                </li>
+                <li><p class="example">{{.}}</p></li>
               {{/e}}
             </ol>
             <ul class="extra">
@@ -33,9 +29,7 @@
                   <p class="phrase">{{p}}</p>
                   <ol class="egs">
                     {{#e}}
-                      <li>
-                        <p class="example">{{.}}</p>
-                      </li>
+                      <li><p class="example">{{.}}</p></li>
                     {{/e}}
                   </ol>
                 </li>
