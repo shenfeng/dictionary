@@ -8,6 +8,10 @@ dist: clean
 	$(CC) $(CFLAGS) -o dict  rio.c epoll.c network.c search.c static.c -D_GNU_SOURCE -DHANDLE_STATIC
 	strip dict
 
+dist_no_static_handing: clean
+	$(CC) $(CFLAGS) -o dict  rio.c epoll.c network.c search.c -D_GNU_SOURCE
+	strip dict
+
 epoll: network.c network.h epoll.c
 	$(CC) $(CFLAGS) -o network network.c epoll.c -D_GNU_SOURCE
 

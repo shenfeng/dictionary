@@ -130,9 +130,11 @@ void accept_incoming(int listen_sock, int epollfd) {
 void close_and_clean(dict_epoll_data *ptr, int epollfd) {
     epoll_ctl(epollfd, EPOLL_CTL_DEL, ptr->sock_fd, NULL);
     close(ptr->sock_fd);
+#ifdef HANDLE_STATIC
     if (ptr->static_fd) {
         close(ptr->static_fd);
     }
+#endif
     free(ptr);
 }
 
