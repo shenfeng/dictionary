@@ -61,11 +61,10 @@ public class Writter {
 		write(items, toJsonStr);
 		TreeSet<String> allWords = new TreeSet<String>(items.keySet());
 		BufferedWriter writer = new BufferedWriter(new FileWriter(
-				"/tmp/allwords"));
-		for (String word : allWords) {
-			writer.write(word);
-			writer.write("\n");
-		}
+				"/tmp/allwords.js"));
+		writer.write("window._WORDS_=");
+		writer.write((String) toJsonStr.invoke(allWords));
+		writer.write(";");
 		writer.close();
 	}
 

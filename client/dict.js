@@ -6,7 +6,7 @@
       to_html = Mustache.to_html,
       ajax_queue = [],
       max_candiates = 27,
-      all_words,
+      all_words = window._WORDS_,
       tmpls = window.D.tmpls,
       trigger_ac = true,
       old_q;
@@ -91,18 +91,6 @@
     }
     show_candidates(result);
   }
-
-  $.get('/allwords', function (data) {
-    all_words = data.split("\n");
-    if(location.hash) {
-      var hash = location.hash.substring(1);
-      show_search_result(hash, true);
-    } else {
-      show_empty_query_candidates();
-    }
-  });
-
-  $q.focus();
 
   function remove_from_array (array, e) {
     var result = [];
@@ -201,5 +189,14 @@
       setTimeout(auto_complete, 1);
     }
   });
+
+  if(location.hash) {
+    var hash = location.hash.substring(1);
+    show_search_result(hash, true);
+  } else {
+    show_empty_query_candidates();
+  }
+
+  $q.focus();
 
 })();
