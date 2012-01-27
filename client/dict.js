@@ -65,15 +65,6 @@
     show_candidates(result, word, force_refresh);
   }
 
-  delegateEvents($ac, {
-    'click a': function (e) {
-      $("li.selected").removeClass('selected');
-      var $this = $(this);
-      $this.addClass('selected');
-      show_search_result($this.text().trim());
-    }
-  });
-
   function show_candidates (candidats, select, force_refresh) {
     if(select && !force_refresh) {
       var already_show = false;
@@ -214,6 +205,15 @@
     }
   });
 
+  delegateEvents($ac, {
+    'click a': function (e) {
+      $("li.selected").removeClass('selected');
+      var $this = $(this);
+      $this.addClass('selected');
+      show_search_result($this.text().trim());
+    }
+  });
+
   if(location.hash) {
     var hash = location.hash.substring(1);
     show_search_result(hash, true);
@@ -222,4 +222,9 @@
   }
 
   $q.focus();
+  window.switch_img = function (img) {
+    var $img = $(img);
+    img.src = "/imgs/" + $img.attr('data-img') + ".jpg";
+  };
 })();
+

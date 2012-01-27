@@ -4,7 +4,8 @@
     <li class="item">
       <span class="type">{{t}}</span>
       <ul class="imags">
-        {{#i}}<img src="/imgs/00{{.}}.jpg"/>{{/i}}
+        {{#i}}<img onerror="switch_img(this)"
+          src="/bimgs/{{.}}.jpg" data-img="{{.}}"/>{{/i}}
       </ul>
       <ul>
         {{#l}}
