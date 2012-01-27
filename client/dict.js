@@ -8,8 +8,36 @@
       max_candiates = 27,
       all_words = window._WORDS_,
       tmpls = window.D.tmpls,
+      word_map = {},            // for faster lookup
       trigger_ac = true,
       old_q;
+
+  (function () {                        // build word map
+    var last, c;
+    for(var i = 0; i < all_words.length; i++) {
+      c = all_words[i].charAt(0);
+      if(c !== last) {
+        word_map[c] = i;
+        last = c;
+      }
+    }
+  })();
+
+  function binary_search_word (w) {
+    var low = 0, high = all_words.length - 1;
+    while(low <= high) {
+      var mid = Math.round((low + high) / 2),
+          word = all_words[mid];
+      if(w === word) {
+        return mid;
+      } else if (w > word) {
+        low = mid + 1;
+      } else {
+        high = mid - 1;
+      }
+    }
+    return 0;                   // easier
+  }
 
   function delegateEvents($ele, events) {
     for (var key in events) {
@@ -27,12 +55,7 @@
 
   function show_nearby_words (word, force_refresh) {
     var result = [];
-    var i = 0;
-    for(; i < all_words.length; i++) {
-      if(word === all_words[i]) {
-        break;
-      }
-    }
+    var i = binary_search_word(word);
     if(i > max_candiates / 2) { i -= Math.round(max_candiates / 2); }
     for(; i < all_words.length; i++) {
       if(result.push(all_words[i]) > max_candiates) {
@@ -128,6 +151,27 @@
     ajax_queue.push(xhr);
   }
 
+
+  function auto_complete () {
+    var q = $q.val().trim().toLowerCase();
+    if(q && q !== old_q) {
+      old_q = q;
+      var result = [], start = word_map[q.charAt(0)] || 0;
+      for(var i = start; i < all_words.length; i++) {
+        var word = all_words[i];
+        if(word.indexOf(q) === 0) {
+          if(result.push(word) > max_candiates) {
+            break;
+          }
+        }
+      }
+      show_candidates(result);
+      if(result.length) {
+        show_search_result(result[0], false, true);
+      }
+    }
+  }
+
   $(document).keydown(function (e) {
     var which = e.which;
     $selected = $("li.selected");
@@ -160,26 +204,6 @@
     }
   });
 
-  function auto_complete () {
-    var q = $q.val().trim().toLowerCase();
-    if(q && q !== old_q) {
-      old_q = q;
-      var result = [];
-      for(var i = 0; i < all_words.length; i++) {
-        var word = all_words[i];
-        if(word.indexOf(q) === 0) {
-          if(result.push(word) > max_candiates) {
-            break;
-          }
-        }
-      }
-      show_candidates(result);
-      if(result.length) {
-        show_search_result(result[0], false, true);
-      }
-    }
-  }
-
   $q.keydown(function (e) {
     if(!e.ctrlKey
        && e.which != 16
@@ -198,5 +222,4 @@
   }
 
   $q.focus();
-
 })();
