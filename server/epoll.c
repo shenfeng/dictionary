@@ -7,6 +7,20 @@
 #include "static.h"
 #endif
 
+#define GZIP_MAGIC 0x8b1f
+static char gzip_header[] = {
+    (char) GZIP_MAGIC,          // Magic number (short)
+    (char) (GZIP_MAGIC >> 8),   // Magic number (short)
+    8,                    // Compression method (CM) Deflater.DEFLATED
+    0,                    // Flags (FLG)
+    0,                    // Modification time MTIME (int)
+    0,                    // Modification time MTIME (int)
+    0,                    // Modification time MTIME (int)
+    0,                    // Modification time MTIME (int)
+    0,                    // Extra flags (XFLG)
+    0                     // Operating system (OS)
+};
+
 static char *gziped_json_headers = "HTTP/1.1 200 OK\r\nContent-Length: %lu\r\nContent-Encoding: gzip\r\nContent-Type: application/Json\r\n\r\n";
 
 static char *json_headers = "HTTP/1.1 200 OK\r\nContent-Length: %lu\r\nContent-Type: application/Json\r\n\r\n";
@@ -124,21 +138,27 @@ void handle_request(dict_epoll_data *ptr, char uri[]) {
     if (uri_length > 3 && uri[0] == '/' && uri[1] == 'd' && uri[2] == '/') {
         char *loc = search_word(uri + 3); // 3 is /d/:word
         if (loc) {
-            int length = read_short(loc, 0);
-            char *h = gziped_json_headers;
-            if (length > 0xe000) { // first bit: is gzipped
-                length -= 0xe000;
-                h = json_headers;
-            }
+            int data_size = read_short(loc, 0);
+            int header_length = 0;
             char *headers = ptr->headers;
-            sprintf(headers, h, length);
-            int cont = nonb_write_headers(ptr->sock_fd, headers, strlen(headers), ptr);
+            if (data_size > 0xe000) { // first bit: is not gzipped
+                data_size -= 0xe000;
+                sprintf(headers, json_headers, data_size);
+                header_length = strlen(headers);
+            } else {
+                sprintf(headers, gziped_json_headers, data_size + 10);
+                header_length = strlen(headers);
+                // copy gzip_header with http headers
+                memcpy(headers + header_length, gzip_header, 10);
+                header_length += 10;
+            }
+            int cont = nonb_write_headers(ptr->sock_fd, headers, header_length, ptr);
             if (cont) {
                 // 2 byte for size, 1 byte for zipped or not
-                nonb_write_body(ptr->sock_fd, loc + 2, length, ptr);
+                nonb_write_body(ptr->sock_fd, loc + 2, data_size, ptr);
             } else {
                 ptr->body_bufptr = loc;
-                ptr->body_cnt = length;
+                ptr->body_cnt = data_size;
             }
         } else {
             client_error(ptr->sock_fd, 404, "Not found", "");

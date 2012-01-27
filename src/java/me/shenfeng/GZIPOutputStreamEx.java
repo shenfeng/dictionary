@@ -46,7 +46,7 @@ public class GZIPOutputStreamEx extends DeflaterOutputStream {
 			throws IOException {
 		super(out, new Deflater(compressLevel, true), size);
 		// usesDefaultDeflater = true;
-		writeHeader();
+		// writeHeader();
 		crc.reset();
 	}
 
