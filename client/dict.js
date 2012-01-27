@@ -7,8 +7,9 @@
       ajax_queue = [],
       max_candiates = 27,
       all_words = window._WORDS_,
+      word_map = window._MAPS_,
       tmpls = window.D.tmpls,
-      word_map = {},            // for faster lookup
+      lookup_map = {},            // for faster lookup
       trigger_ac = true,
       old_q;
 
@@ -17,7 +18,7 @@
     for(var i = 0; i < all_words.length; i++) {
       c = all_words[i].charAt(0);
       if(c !== last) {
-        word_map[c] = i;
+        lookup_map[c] = i;
         last = c;
       }
     }
@@ -125,7 +126,8 @@
 
   function show_search_result (q, force_refresh, update_value) {
     cancel_all_ajax();
-    var xhr = $.getJSON("/d/" + q, function (data) {
+    var lookup_word = word_map[q] || q;
+    var xhr = $.getJSON("/d/" + lookup_word, function (data) {
       ajax_queue = remove_from_array(ajax_queue, xhr);
       show_nearby_words(q, force_refresh);
       if(!update_value) {
@@ -134,7 +136,7 @@
       if(!Array.isArray(data)) { data = [data]; }
       var html = to_html(tmpls.explain, {
         items: data,
-        word: q
+        word: data[0].w || lookup_word
       });
       $("#explain").empty().append(html);
       location.hash = q;
@@ -147,7 +149,7 @@
     var q = $q.val().trim().toLowerCase();
     if(q && q !== old_q) {
       old_q = q;
-      var result = [], start = word_map[q.charAt(0)] || 0;
+      var result = [], start = lookup_map[q.charAt(0)] || 0;
       for(var i = start; i < all_words.length; i++) {
         var word = all_words[i];
         if(word.indexOf(q) === 0) {
@@ -176,6 +178,7 @@
       var q = $selected.text().trim() || $q.val().trim();
       show_search_result(q, true);
       break;
+    case 74:                    // J
     case 40:                    // DOWN
       var $next = $selected.next();
       if($selected.length && $next.length) {
@@ -184,6 +187,7 @@
         show_search_result($next.text().trim());
       }
       break;
+    case 75:                    // K
     case 38:                    // UP
       var $prev = $selected.prev();
       if($selected.length && $prev) {
@@ -197,11 +201,12 @@
 
   $q.keydown(function (e) {
     if(!e.ctrlKey
-       && e.which != 16
+       && e.which != 91         // win
        && e.which !== 27 && e.which !== 40
        && e.which !== 38 && e.which !== 13
-       && e.which != 18) {      // alt key
+       && e.which != 18) {      // Alt key
       setTimeout(auto_complete, 1);
+      e.stopPropagation();
     }
   });
 

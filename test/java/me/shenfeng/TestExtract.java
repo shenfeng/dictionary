@@ -31,6 +31,15 @@ public class TestExtract {
 	}
 
 	@Test
+	public void testWent() throws Exception {
+		DictItem current = get(new File(
+				"/home/feng/www.ldoceonline.com/dictionary/went"));
+
+		System.out.println(current);
+		System.out.println(current.toString().length());
+	}
+
+	@Test
 	public void testPage1() throws FileNotFoundException, IOException {
 		DictItem current = get("page_1");
 		Assert.assertEquals("class noun", "noun", current.wordClass);
@@ -156,10 +165,10 @@ public class TestExtract {
 					DictItem item = get(f);
 					types.put(item.getT());
 					count++;
-					for (ExplainItem i: item.getL()) {
+					for (ExplainItem i : item.getL()) {
 						grammer.put(i.getG());
 					}
-					
+
 					// for (int i : levels) {
 					//
 					// }
@@ -190,10 +199,10 @@ public class TestExtract {
 			System.out.println(i + "\t" + levels[i]);
 		}
 
-		System.out.println("types------------------------------");
-		types.dump();
-		System.out.println("grama-===============================");
-		grammer.dump();
+		// System.out.println("types------------------------------");
+		// types.dump();
+		// System.out.println("grama-===============================");
+		// grammer.dump();
 
 	}
 }

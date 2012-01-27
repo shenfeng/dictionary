@@ -9,6 +9,8 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -21,24 +23,18 @@ import clojure.lang.IFn;
 
 public class Writter {
 
-	public static void addToMap(Map<String, Object> map, DictItem item) {
+	public static void addToMap(Map<String, List<DictItem>> map, DictItem item) {
 		String word = item.word.toLowerCase();
 		if (word.equals(item.word)) {
 			item.word = null;// just the same
 		}
-		Object object = map.get(word);
-
-		if (object instanceof DictItem) {
-			List<Object> items = new ArrayList<Object>();
-			items.add(object);
-			items.add(item);
-			map.put(word, items);
-
-		} else if (object instanceof List) {
-			List<Object> items = (List<Object>) object;
+		List<DictItem> items = map.get(word);
+		if (items != null) {
 			items.add(item);
 		} else {
-			map.put(word, item);
+			items = new ArrayList<DictItem>(1);
+			items.add(item);
+			map.put(word, items);
 		}
 	}
 
@@ -46,7 +42,7 @@ public class Writter {
 			IOException {
 
 		File dir = new File("/home/feng/www.ldoceonline.com/dictionary");
-		Map<String, Object> items = new TreeMap<String, Object>();
+		Map<String, List<DictItem>> items = new TreeMap<String, List<DictItem>>();
 		File[] files = dir.listFiles();
 		int count = 0;
 		for (File f : files) {
@@ -58,36 +54,102 @@ public class Writter {
 			}
 		}
 		System.out.println("size: " + items.size() + " files: " + count);
-		write(items, toJsonStr);
 		TreeSet<String> allWords = new TreeSet<String>(items.keySet());
+		Map<String, String> maps = removePastTense(items, allWords);
+		write(items, toJsonStr);
 		BufferedWriter writer = new BufferedWriter(new FileWriter(
 				"/tmp/allwords.js"));
 		writer.write("window._WORDS_=");
 		writer.write((String) toJsonStr.invoke(allWords));
 		writer.write(";");
+
+		writer.write("window._MAPS_=");
+		writer.write((String) toJsonStr.invoke(maps));
+		writer.write(";");
+
 		writer.close();
 	}
 
-	public static void write(Map<String, Object> items, IFn toJsonStr)
+	public static boolean removeIfNecessary(Map<String, List<DictItem>> items,
+			String oldWord, String derivedWord) {
+		if (derivedWord != null && items.get(derivedWord) != null
+				&& !derivedWord.equals(oldWord)) {
+			derivedWord = derivedWord.toLowerCase();
+			List<DictItem> is = items.get(derivedWord);
+			Iterator<DictItem> iterator = is.iterator();
+			while (iterator.hasNext()) {
+				DictItem i = iterator.next();
+				// System.out.println(word + ": " + i);
+				if (i.getL().size() == 1
+						&& i.getL().get(0).examples.size() == 0
+						&& i.toString().length() < 60) {
+					iterator.remove();
+				}
+			}
+			if (is.size() == 0) {
+				// System.out.println("remove " + derivedWord);
+				items.remove(derivedWord);
+				return true;
+			}
+		}
+		return false;
+	}
+
+	public static Map<String, String> removePastTense(
+			Map<String, List<DictItem>> items, TreeSet<String> words) {
+		System.out.println("items count " + items.size());
+		Map<String, String> maps = new HashMap<String, String>();
+		for (String word : words) {
+			List<DictItem> is = items.get(word);
+			if (is != null) {
+				List<String> ws = new ArrayList<String>();
+				for (DictItem i : is) {
+					if (removeIfNecessary(items, word, i.pastpart)) {
+						maps.put(i.pastpart, word);
+						ws.add(i.pastpart);
+					}
+					if (removeIfNecessary(items, word, i.pasttense)) {
+						maps.put(i.pasttense, word);
+						ws.add(i.pasttense);
+					}
+					if (removeIfNecessary(items, word, i.t3perssing)) {
+						maps.put(i.t3perssing, word);
+						ws.add(i.t3perssing);
+					}
+				}
+			}
+		}
+		System.out.println("remove words " + maps.size());
+		System.out.println("items count after remove " + items.size());
+		System.out.println(maps);
+		return maps;
+	}
+
+	public static void write(Map<String, List<DictItem>> items, IFn toJsonStr)
 			throws IOException {
 		FileOutputStream fs = new FileOutputStream("/tmp/dbdata");
 		int count = items.size();
 		fs.write(getBytes(count)); // how many words
 
-		for (Map.Entry<String, Object> entry : items.entrySet()) {
+		for (Map.Entry<String, List<DictItem>> entry : items.entrySet()) {
 			String word = entry.getKey();
-			String json = (String) toJsonStr.invoke(entry.getValue());
+			List<DictItem> ds = entry.getValue();
+			String json = null;
+			if (ds.size() > 1) {
+				json = (String) toJsonStr.invoke(ds);
+			} else {
+				// save 2 byte
+				json = (String) toJsonStr.invoke(ds.get(0));
+			}
 			fs.write(word.getBytes());
 			fs.write(0); // NULL terminate String@
 			byte[] bytes = json.getBytes();
 			byte[] gzipped = Zipper.zip2(json, Deflater.BEST_COMPRESSION);
 			if (bytes.length < gzipped.length) {
-				fs.write(getBytes(bytes.length + 0xe000));
-				// fs.write(0); // save unziped
+				fs.write(getBytes(bytes.length + 0xe000)); // unzipped
 				fs.write(bytes);
 			} else {
 				fs.write(getBytes(gzipped.length));
-				// fs.write(1); // saved zipped
 				fs.write(gzipped);
 			}
 		}

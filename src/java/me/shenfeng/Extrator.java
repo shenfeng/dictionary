@@ -74,6 +74,29 @@ public class Extrator {
 		item.isFreqSpoken1 = maybeGetString(content, ".freqS") != null;
 		item.isFreqWritten1 = maybeGetString(content, ".freqW") != null;
 
+		String pasttense = maybeGetString(content, ".PASTTENSE");
+		if (pasttense != null) {
+			pasttense = pasttense.substring("past tense".length()).trim();
+			item.pasttense = pasttense;
+		}
+
+		String pastpart = maybeGetString(content, ".PASTPART");
+		if (pastpart != null) {
+			pastpart = pastpart.substring("past participle".length()).trim();
+			item.pastpart = pastpart;
+		}
+
+		String t3 = maybeGetString(content, "T3PERSSING");
+		if (t3 != null) {
+			t3 = t3.substring("third person singular".length()).trim();
+			item.t3perssing = t3;
+		}
+
+		if (t3 != null || pastpart != null || pasttense != null) {
+			System.out.println(item.word + "\t" + pasttense + "\t" + pastpart
+					+ "\t" + t3);
+		}
+
 		Elements imgs = content.select(".preview");
 		for (Element img : imgs) {
 			String imgSrc = img.attr("src");

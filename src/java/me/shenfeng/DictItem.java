@@ -12,6 +12,9 @@ public class DictItem {
 	public String wordClass;
 	public boolean isFreqSpoken1;
 	public boolean isFreqWritten1;
+	public String pasttense;
+	public String pastpart;
+	public String t3perssing;
 
 	static final Map<String, String> classes;
 
@@ -26,6 +29,14 @@ public class DictItem {
 	}
 
 	public List<String> imags = new ArrayList<String>(1);
+
+	public String getPT() {
+		return pasttense;
+	}
+
+	public String getPP() {
+		return pastpart;
+	}
 
 	public String getW() {
 		return word;
