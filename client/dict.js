@@ -129,7 +129,7 @@
       if(!update_value) {
         $q.val(q);
       }
-      if(!_.isArray(data)) { data = [data]; }
+      if(!Array.isArray(data)) { data = [data]; }
       var html = to_html(tmpls.explain, {
         items: data,
         word: q
