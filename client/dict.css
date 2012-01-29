@@ -1,7 +1,7 @@
 .clearfix:before, .clearfix:after { content: ""; display: table; }
 .clearfix:after { clear: both; }
 .clearfix { zoom: 1; }
-
+img { float: left; width: 350px; padding: 3px 4px; border: 1px solid #eee; }
 html, body { margin: 0; padding: 0; }
 html { overflow-y: scroll; }
 #page-wrap { width: 1060px; margin: 0 auto; }

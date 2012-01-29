@@ -4,10 +4,12 @@
     <li>
       <div class="type">{{t}}</div>
       <div class="detail-all">
-        {{#i}}
-          <img onerror="switch_img(this)"
-          src="/bimgs/{{.}}.jpg" data-img="{{.}}"/>
-        {{/i}}
+        <div class="imgs clearfix">
+          {{#i}}
+            <img onerror="switch_img(this)"
+            src="/bimgs/{{.}}.jpg" data-img="{{.}}"/>
+          {{/i}}
+        </div>
         <ol class="detail">
           {{#l}}
             <li>

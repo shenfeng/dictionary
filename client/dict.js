@@ -26,6 +26,52 @@
     }
   })();
 
+  function edit1 (word) {
+    var splits = [], uniqMap = {}, i, result = [];
+    for(i = 0; i <= word.length; i++) {
+      splits.push([word.substring(0, i), word.substring(i)]);
+    }
+    for(i = 0; i < splits.length; i++) {
+      var part = splits[i], s0 = part[0], s1 = part[1];
+      if(s1) {
+        uniqMap[s0 + s1.substring(1)] = 1; // delete
+        for(var j = 0; j < alphabet.length; j++) {
+          uniqMap[s0 + alphabet.charAt(j) + s1.substring(1)] = 1; // replace
+          uniqMap[s0 + alphabet.charAt(j) + s1] = 1; // insert
+        }
+      }
+      if(s1.length > 1) {
+        var t = s0 + s1.charAt(1) + s1.charAt(0) + s1.substring(2); // transpose
+        uniqMap[t] = 1;
+      }
+    }
+
+    for (var w in uniqMap) {
+      if(binary_search_word(w)) {
+        result.push(w);
+      }
+    }
+    return result;
+  }
+
+  function edit2 (word) {
+    var result = edit1(word), uniqMap = {};
+    for(var i = 0; i < result.length; i++) {
+      uniqMap[result[i]] = 1;
+      var e2 = edit1(result[i]);
+      for(var j = 0; j < e2.length; j++) {
+        uniqMap[e2[j]] = 1;
+      }
+    }
+    result = [];
+    for (var w in uniqMap) {
+      if(binary_search_word(w)) {
+        result.push(w);
+      }
+    }
+    return result;
+  }
+
   function next_charactor (c) {
     var i = 0;
     for(;i < alphabet.length; ++i) {
@@ -172,6 +218,14 @@
           if(result.push(word) > max_candiates) {
             break;
           }
+        }
+      }
+      if(!result.length) {
+        var e1 = edit1(q);
+        if(e1.length > 5) {
+          result = e1;
+        } else {
+          result = edit2(q);
         }
       }
       show_candidates(result);
