@@ -203,9 +203,8 @@
     ajax_queue.push(xhr);
   }
 
-
-  function auto_complete () {
-    var q = $q.val().trim().toLowerCase();
+  function auto_complete (q) {
+    q = q || $q.val().trim().toLowerCase();
     if(q && q !== old_q) {
       old_q = q;
       var result = [],  c = q.charAt(0),
@@ -245,8 +244,12 @@
       setTimeout(function () { $q.focus(); $q[0].select(); }, 1);
       break;
     case 13:                    // ENTER
-      var q = $selected.text().trim() || $q.val().trim();
-      show_search_result(q, true);
+      var val = $q.val().trim() || $selected.text().trim();
+      if(val && binary_search_word(val)) {
+        show_search_result(val, true);
+      } else {
+        auto_complete(val);
+      }
       break;
     case 74:                    // J
     case 40:                    // DOWN
