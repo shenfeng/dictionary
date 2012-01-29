@@ -51,11 +51,11 @@ int open_nonb_listenfd(int port) {
     if (setsockopt(listenfd, SOL_SOCKET, SO_REUSEADDR,
                    (const void *)&optval , sizeof(int)) < 0)
         return -1;
-    // 6 is TCP's protocol number
+    // 6 is TCP's protocol number, don't send out partial frames
     // enable this, much faster : 4000 req/s -> 17000 req/s
-    if (setsockopt(listenfd, 6, TCP_CORK,
-                   (const void *)&optval , sizeof(int)) < 0)
-        return -1;
+    // if (setsockopt(listenfd, 6, TCP_CORK,
+    //                (const void *)&optval , sizeof(int)) < 0)
+    //     return -1;
     /* Listenfd will be an endpoint for all requests to port
        on any IP address for this host */
     memset(&serveraddr, 0, sizeof(serveraddr));
