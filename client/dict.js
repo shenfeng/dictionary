@@ -242,7 +242,7 @@
     case 27:                    // ESC
       break;
     case 191:
-      setTimeout(function () { $q.focus(); }, 1);
+      setTimeout(function () { $q.focus(); $q[0].select(); }, 1);
       break;
     case 13:                    // ENTER
       var q = $selected.text().trim() || $q.val().trim();
