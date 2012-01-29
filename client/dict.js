@@ -1,6 +1,8 @@
 (function () {
   var eventSplitter = /^(\S+)\s*(.*)$/;
 
+  var alphabet = "abcdefghijklmnopqrstuvwxyz";
+
   var $q = $("#q"),
       $ac = $("#ac"),
       to_html = Mustache.to_html,
@@ -23,6 +25,17 @@
       }
     }
   })();
+
+  function next_charactor (c) {
+    var i = 0;
+    for(;i < alphabet.length; ++i) {
+      if(c === alphabet.charAt(i)) {
+        ++i;
+        break;
+      }
+    }
+    return i === alphabet.length ? 'a' : alphabet.charAt(i);
+  }
 
   function binary_search_word (w) {
     var low = 0, high = all_words.length - 1;
@@ -149,8 +162,11 @@
     var q = $q.val().trim().toLowerCase();
     if(q && q !== old_q) {
       old_q = q;
-      var result = [], start = lookup_map[q.charAt(0)] || 0;
-      for(var i = start; i < all_words.length; i++) {
+      var result = [],  c = q.charAt(0),
+          n = next_charactor(c),
+          start = lookup_map[c] || 0,
+          end = (n === 'a' ? all_words.length : lookup_map[n]);
+      for(var i = start; i < end; i++) {
         var word = all_words[i];
         if(word.indexOf(q) === 0) {
           if(result.push(word) > max_candiates) {
