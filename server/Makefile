@@ -18,5 +18,8 @@ epoll: network.c network.h epoll.c
 search: search.c search.h
 	$(CC) $(CFLAGS) -o search search.c -DTEST_SEARCH
 
+client: client.c
+	$(CC) $(CFLAGS) -o client client.c -DTEST_CLIENT -D_POSIX_SOURCE
+
 clean:
-	rm network search dict dict e -f
+	rm network search client dict dict e -f

@@ -41,7 +41,7 @@ public class Writter {
 	public static void splitToDisk(IFn toJsonStr) throws FileNotFoundException,
 			IOException {
 
-		File dir = new File("/home/feng/www.ldoceonline.com/dictionary");
+		File dir = new File("/home/feng/Downloads/www.ldoceonline.com/dictionary");
 		Map<String, List<DictItem>> items = new TreeMap<String, List<DictItem>>();
 		File[] files = dir.listFiles();
 		int count = 0;

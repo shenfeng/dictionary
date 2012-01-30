@@ -1,6 +1,5 @@
 /pom.xml
 epoll
-client/allwords
 client/tmpls.js
 server/dict
 server/dbdata
@@ -12,6 +11,8 @@ target
 *jar
 /lib
 /classes
+client/imgs
+client/bimgs
 /native
 /.lein-failures
 /checkouts
