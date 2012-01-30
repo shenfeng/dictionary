@@ -49,8 +49,10 @@ int open_nonb_listenfd(int port) {
     }
     // Eliminates "Address already in use" error from bind.
     if (setsockopt(listenfd, SOL_SOCKET, SO_REUSEADDR,
-                   (const void *)&optval , sizeof(int)) < 0)
-        return -1;
+                   (const void *)&optval , sizeof(int)) < 0) {
+        perror("setsockopt");
+        exit(EXIT_FAILURE);
+    }
     // 6 is TCP's protocol number, don't send out partial frames
     // enable this, much faster : 4000 req/s -> 17000 req/s
     // if (setsockopt(listenfd, 6, TCP_CORK,
