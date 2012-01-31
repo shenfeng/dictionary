@@ -20,6 +20,8 @@ static mime_map meme_types [] = {
 
 static char *default_mime_type = "text/plain";
 
+static char *static_headers = "HTTP/1.1 200 OK\r\nContent-length: %lu\r\nContent-type: %s\r\n\r\n";
+
 static const char* get_mime_type(char *filename){
     char *dot = strrchr(filename, '.');
     if(dot){ // strrchar Locate last occurrence of character in string
@@ -36,10 +38,7 @@ static const char* get_mime_type(char *filename){
 
 static void serve_static(dict_epoll_data *ptr, char* uri, size_t total_size) {
     char *bufp = ptr->headers;
-    sprintf(bufp, "HTTP/1.1 200 OK\r\nAccept-Ranges: bytes\r\n");
-    sprintf(bufp + strlen(bufp), "Content-length: %lu\r\n", total_size);
-    sprintf(bufp + strlen(bufp), "Content-type: %s\r\n\r\n",
-            get_mime_type(uri));
+    sprintf(bufp, static_headers, total_size, get_mime_type(uri));
     if (nonb_write_headers(ptr->sock_fd, bufp, strlen(bufp), ptr)) {
         nonb_sendfile(ptr);
     }
