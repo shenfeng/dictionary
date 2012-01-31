@@ -2,7 +2,6 @@
 epoll
 client/tmpls.js
 server/dict
-server/dbdata
 search
 e
 target
