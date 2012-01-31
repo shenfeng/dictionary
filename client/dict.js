@@ -281,6 +281,8 @@
       setTimeout(auto_complete, 1);
       e.stopPropagation();
     }
+  }).bind('paste', function () {
+    setTimeout(auto_complete, 1);
   });
 
   delegateEvents($ac, {
@@ -301,8 +303,11 @@
 
   $q.focus();
   window.switch_img = function (img) {
-    var $img = $(img);
-    img.src = "/imgs/" + $img.attr('data-img') + ".jpg";
+    var $img = $(img),
+        src = "/imgs/" + $img.attr('data-img') + ".jpg";
+    if(img.src.indexOf(src) === -1) {
+      img.src = src;
+    }
   };
 })();
 
