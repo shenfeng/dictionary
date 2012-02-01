@@ -21,9 +21,9 @@ static char gzip_header[] = {
     0                     // Operating system (OS)
 };
 
-static char *gziped_json_headers = "HTTP/1.1 200 OK\r\nContent-Length: %lu\r\nContent-Encoding: gzip\r\nContent-Type: application/Json\r\n\r\n";
+static char *gziped_json_headers = "HTTP/1.1 200 OK\r\nContent-Length: %lu\r\nConnection:keep-alive\r\nContent-Encoding: gzip\r\nContent-Type: application/Json\r\n\r\n";
 
-static char *json_headers = "HTTP/1.1 200 OK\r\nContent-Length: %lu\r\nContent-Type: application/Json\r\n\r\n";
+static char *json_headers = "HTTP/1.1 200 OK\r\nContent-Length: %lu\r\nConnection:keep-alive\r\nContent-Type: application/Json\r\n\r\n";
 
 int nonb_write_headers(int fd, char* bufp, int nleft, dict_epoll_data *ptr) {
     int nwritten;
