@@ -35,3 +35,8 @@ desc "watch for change"
 task :watch do
   sh 'while inotifywait -r -e modify tmpls/; do rake jstemple; done'
 end
+
+desc "deploy"
+task :deploy do
+  sh "./deploy"
+end

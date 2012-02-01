@@ -1,0 +1,18 @@
+server {
+        server_name shenfeng.me;
+        access_log  /var/log/nginx/blog.access.log;
+        location /d {
+                 proxy_pass  http://127.0.0.1:9090/;
+                 access_log off;
+        }
+        location /dict {
+                alias /var/www/dict/client;
+                index index.html;
+                expires 3h;
+        }
+        location / {
+                root /var/www/shenfeng.me;
+                index index.html;
+                expires 3h;
+        }
+}

@@ -22,4 +22,4 @@ client: client.c
 	$(CC) $(CFLAGS) -o client client.c -DTEST_CLIENT -D_POSIX_SOURCE
 
 clean:
-	rm network search client dict dict e -f
+	rm network search client dict a.out e -f
