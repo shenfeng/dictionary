@@ -30,14 +30,15 @@
 #endif
 #endif
 
+// sizeof = 168, malloc: 176
 typedef struct {
-    int sock_fd;                // file descriptor
     char* body_bufptr;          // offset in dict array data
+    int sock_fd;                // file descriptor
     int body_cnt;               // how remainning byte
 
-    int headers_cnt;            // header length unwrite
     char headers[RESP_HEADER_LENTH];
     char *headers_bufptr;       // header pointer
+    int headers_cnt;            // header length unwrite
 #ifdef HANDLE_STATIC
     int static_fd;
     int file_cnt;               // unwrite file
