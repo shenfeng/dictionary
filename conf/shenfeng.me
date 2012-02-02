@@ -2,7 +2,7 @@ server {
         server_name shenfeng.me;
         access_log  /var/log/nginx/blog.access.log;
         location /d {
-                 proxy_pass  http://127.0.0.1:9090/;
+                 proxy_pass  http://127.0.0.1:9090/d;
                  access_log off;
         }
         location /dict {

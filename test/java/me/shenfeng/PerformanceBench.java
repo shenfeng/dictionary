@@ -58,7 +58,7 @@ public class PerformanceBench {
 
     public static void main(String[] args) throws IOException {
 
-        int concurrency = 1024 * 5;
+        int concurrency = 1024 * 3;
         long totalByteReceive = 0;
         int total = 200000;
         int remaining = total;
