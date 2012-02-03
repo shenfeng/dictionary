@@ -25,7 +25,12 @@ h2 { margin-bottom: 0; }
 .example { color: #222; }
 .group, .help { color: #111; font-size: 13px; }
 .explain { font-size: 14px; margin: 0.5em 0; }
-p.phrase { margin: 0.5em 0; color: blue; font-size: 13.5px; font-family: monospace;}
+p.phrase {
+    margin: 0.5em 0;
+    color: blue;
+    font-size: 13.5px;
+    font-family: monospace;
+}
 #explain { float: right; padding-left: 10px; width: 720px; }
 #selection {
     position: fixed;
