@@ -2,12 +2,13 @@
 #include "network.h"
 
 static mime_map meme_types [] = {
+    {".html.gz", "text/html"},
+    {".js.gz", "application/js"},
+    {".jpg", "image/jpeg"},
+    {".jpeg", "image/jpeg"},
     {".css", "text/css"},
     {".gif", "image/gif"},
-    {".htm", "text/html"},
     {".html", "text/html"},
-    {".jpeg", "image/jpeg"},
-    {".jpg", "image/jpeg"},
     {".ico", "image/x-icon"},
     {".js", "application/javascript"},
     {".pdf", "application/pdf"},
@@ -21,10 +22,11 @@ static mime_map meme_types [] = {
 static char *default_mime_type = "text/plain";
 
 static char *static_headers = "HTTP/1.1 200 OK\r\nContent-length: %lu\r\nConnection:keep-alive\r\nContent-type: %s\r\n\r\n";
+static char *gziped_static_headers = "HTTP/1.1 200 OK\r\nContent-length: %lu\r\nConnection:keep-alive\r\nContent-type: %s\r\nContent-Encoding: gzip\r\n\r\n";
 
 static const char* get_mime_type(char *filename){
-    char *dot = strrchr(filename, '.');
-    if(dot){ // strrchar Locate last occurrence of character in string
+    char *dot = strchr(filename, '.');
+    if(dot){ // strchr Locate first occurrence of character in string
         mime_map *map = meme_types;
         while(map->extension){
             if(strcmp(map->extension, dot) == 0){
@@ -38,7 +40,12 @@ static const char* get_mime_type(char *filename){
 
 static void serve_static(dict_epoll_data *ptr, char* uri, size_t total_size) {
     char *bufp = ptr->headers;
-    sprintf(bufp, static_headers, total_size, get_mime_type(uri));
+    int uri_length = strlen(uri);
+    if (uri[uri_length - 2] == 'g' && uri[uri_length - 1] == 'z') {
+        sprintf(bufp, gziped_static_headers, total_size, get_mime_type(uri));
+    } else {
+        sprintf(bufp, static_headers, total_size, get_mime_type(uri));
+    }
     if (nonb_write_headers(ptr->sock_fd, bufp, strlen(bufp), ptr)) {
         nonb_sendfile(ptr);
     }

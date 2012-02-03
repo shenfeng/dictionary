@@ -8,6 +8,19 @@ RSSMINER_CODE_ROOT="${ABSOLUTE_PATH%/*}"
 cd server && make clean
 cd $RSSMINER_CODE_ROOT
 rake jstemple
+rake minify_js
+
+HTML_FILE=`readlink -f  client/index.html`
+CSS_FILE=`readlink -f  client/dict.css`
+RESULT_FILE=`readlink -f client/dict.html`
+cd ${RSSMINER_CODE_ROOT}/src/java
+javac me/shenfeng/CompressHtml.java
+java me.shenfeng.CompressHtml $HTML_FILE $CSS_FILE dict-min.js $RESULT_FILE
+cd $RSSMINER_CODE_ROOT
+rm client/dict.html.gz -f
+gzip -9 $RESULT_FILE
+
+cd $RSSMINER_CODE_ROOT
 
 FRONTEND_HOST=shenfeng.me
 DEPLOYMENT_USER="deploy"
@@ -30,3 +43,6 @@ remote_run "cp ${TARGET_DIR}/server/dbdata /tmp"
 remote_run 'kill -9 `pidof dict` || exit 0'
 # remote_run 'nohup ${TARGET_DIR}/server/dict &'
 remote_run "sudo service nginx restart"
+
+rm client/dict.html.gz -f
+rm client/dict-min.js.gz -f

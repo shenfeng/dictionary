@@ -2,11 +2,17 @@
 deploy
 epoll
 /lib
+/bin
 project.clj
 Rakefile
 README
 run.sh
 src
+/client/dict.js
+/client/jquery.js
+/client/mustache.js
+/client/tmpls.js
+/client/underscore.js
 /target
 /test
 /tmpls

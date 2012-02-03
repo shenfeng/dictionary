@@ -8,6 +8,40 @@ def get_file_as_string(filename)
   return data
 end
 
+def minify_js(name, jss)
+  jscompiler = "closure-compiler.jar"
+  target = "client/#{name}-min.js"
+
+  source_arg = ''
+  jss.each do |js|
+    source_arg += " --js #{js} "
+  end
+  # ADVANCED_OPTIMIZATIONS SIMPLE_OPTIMIZATIONS
+  sh "java -jar bin/#{jscompiler} --warning_level QUIET " +
+    "--compilation_level SIMPLE_OPTIMIZATIONS " +
+    "--js_output_file '#{target}' #{source_arg}"
+end
+
+jscompiler = "closure-compiler.jar"
+
+file "bin/#{jscompiler}" do
+  mkdir_p 'bin'
+  sh 'wget http://closure-compiler.googlecode.com/files/compiler-latest.zip' +
+    ' -O /tmp/closure-compiler.zip'
+  rm_rf '/tmp/compiler.jar'
+  sh 'unzip /tmp/closure-compiler.zip compiler.jar -d /tmp'
+  rm_rf '/tmp/closure-compiler.zip'
+  mv '/tmp/compiler.jar', "bin/#{jscompiler}"
+end
+
+task :deps => ["bin/#{jscompiler}"]
+
+dict_jss = FileList['client/jquery.js',
+                    'client/allwords.js',
+                    'client/mustache.js',
+                    'client/tmpls.js',
+                    'client/dict.js']
+
 def gen_jstempls()
   print "Generating tmpls.js, please wait....\n"
   html_tmpls = FileList["tmpls/**/*.*"]
@@ -39,4 +73,11 @@ end
 desc "deploy"
 task :deploy do
   sh "./deploy"
+end
+
+desc "minify js"
+task :minify_js do
+  sh 'rm -f client/dict-min.js*'
+  minify_js("dict", dict_jss);
+  sh 'cd client && gzip -9 dict-min.js'
 end

@@ -173,9 +173,28 @@ void handle_request(dict_epoll_data *ptr, char uri[]) {
 #ifdef HANDLE_STATIC
     else {
         uri = uri + 1;
-        if (strlen(uri) == 0) {
+        int uri_length = strlen(uri);
+        if (uri_length == 0) {
+#ifdef PRODUCTION
+            uri = "dict.html.gz";
+#endif
+#ifndef PRODUCTION
             uri = "index.html";
+#endif
         }
+#ifdef PRODUCTION
+        else {
+            // use gziped js
+            if(uri[uri_length-2] == 'j' && uri[uri_length-1] == 's') {
+                char gziped_uri[MAXLINE];
+                memcpy(gziped_uri, uri, uri_length);
+                memcpy(gziped_uri + uri_length, ".gz", 3);
+                uri = gziped_uri;
+            }
+        }
+#endif
+
+
 #ifdef DEBUG
         printf("sock_fd %d, request file %s\n", ptr->sock_fd, uri);
 #endif

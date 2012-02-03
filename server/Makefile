@@ -5,7 +5,7 @@ dict: clean epoll.c epoll.h rio.h rio.c search.c search.h static.c static.h
 	$(CC) $(CFLAGS) -o dict rio.c epoll.c network.c search.c static.c -DVERBOSE -DDEBUG -DHANDLE_STATIC -D_GNU_SOURCE
 
 dist: clean
-	$(CC) $(CFLAGS) -o dict  rio.c epoll.c network.c search.c static.c -D_GNU_SOURCE -DHANDLE_STATIC
+	$(CC) $(CFLAGS) -o dict  rio.c epoll.c network.c search.c static.c -D_GNU_SOURCE -DHANDLE_STATIC -DPRODUCTION
 	strip dict
 
 dist_no_static_handing: clean
