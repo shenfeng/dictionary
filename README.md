@@ -1,8 +1,11 @@
 # A simple online english dictionary
 
-A simple and ease to use English dictionary written in C using epoll in server side and javascript in client side
+A simple and ease to use English
+[dictionary](http://shenfeng.me:9090/) written in C using
+epoll in server side and javascript in client side. Data is extracted
+from LDOCE
 
-# directory structure:
+# Directory structure:
 
 1. `/server`  Server side code, in C.
 2. `/client`  Javascript/HTML/CSS
@@ -18,5 +21,10 @@ A simple and ease to use English dictionary written in C using epoll in server s
    1. word
    2. \0
    3. 1 bit: 0 is gzipped data, 1 is unzipped
-   4. 15 bit: how many byte data of this word
+   4. 15 bit: how many bytes of data of this word
    5. data of this word
+
+# Linux epoll's performance is amazing
+
+while 800k idle connection is kept, still 53.4k
+req/s. [more info](http://shenfeng.me/how-far-epoll-can-push-concurrent-socket-connection.html)
