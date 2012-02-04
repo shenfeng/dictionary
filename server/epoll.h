@@ -17,7 +17,7 @@
 
 #define MAXLINE 512             // max length of a line
 #define MAX_EVENTS 256
-#define RESP_HEADER_LENTH 120
+#define RESP_HEADER_LENTH 152
 
 // #define TEST_EPOLL
 

@@ -16,3 +16,4 @@ client/bimgs
 /.lein-failures
 /checkouts
 /.lein-deps-sum
+/server/test

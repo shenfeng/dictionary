@@ -75,6 +75,11 @@ task :deploy do
   sh "scripts/deploy"
 end
 
+desc "run"
+task :run do
+  sh "scripts/run"
+end
+
 desc "minify js"
 task :minify_js do
   sh 'rm -f client/dict-min.js*'

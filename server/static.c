@@ -21,8 +21,8 @@ static mime_map meme_types [] = {
 
 static char *default_mime_type = "text/plain";
 
-static char *static_headers = "HTTP/1.1 200 OK\r\nContent-length: %lu\r\nConnection:keep-alive\r\nContent-type: %s\r\n\r\n";
-static char *gziped_static_headers = "HTTP/1.1 200 OK\r\nContent-length: %lu\r\nConnection:keep-alive\r\nContent-type: %s\r\nContent-Encoding: gzip\r\n\r\n";
+static char *static_headers = "HTTP/1.1 200 OK\r\nContent-length: %lu\r\nCache-Control: max-age=360000, public\r\nContent-type: %s\r\n\r\n";
+static char *gziped_static_headers = "HTTP/1.1 200 OK\r\nContent-length: %lu\r\nCache-Control: max-age=360000, public\r\nContent-type: %s\r\nContent-Encoding: gzip\r\n\r\n";
 
 static const char* get_mime_type(char *filename){
     char *dot = strchr(filename, '.');

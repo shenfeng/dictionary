@@ -1,0 +1,11 @@
+#!/bin/bash -x
+
+set -e
+
+ABSOLUTE_PATH=$(readlink -f $0)
+DICT_CODE_ROOT="${ABSOLUTE_PATH%/*/*}"
+
+cp $DICT_CODE_ROOT/server/dbdata /tmp
+cd $DICT_CODE_ROOT/server
+make
+cd $DICT_CODE_ROOT/client && ../server/dict

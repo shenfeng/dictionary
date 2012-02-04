@@ -21,9 +21,8 @@ static char gzip_header[] = {
     0                     // Operating system (OS)
 };
 
-static char *gziped_json_headers = "HTTP/1.1 200 OK\r\nContent-Length: %lu\r\nConnection:keep-alive\r\nContent-Encoding: gzip\r\nContent-Type: application/Json\r\n\r\n";
-
-static char *json_headers = "HTTP/1.1 200 OK\r\nContent-Length: %lu\r\nConnection:keep-alive\r\nContent-Type: application/Json\r\n\r\n";
+static char *json_headers = "HTTP/1.1 200 OK\r\nContent-Length: %lu\r\nCache-Control: max-age=360000, public\r\nContent-Type: application/json\r\n\r\n";
+static char *gziped_json_headers = "HTTP/1.1 200 OK\r\nContent-Length: %lu\r\nCache-Control: max-age=360000, public\r\nContent-Encoding: gzip\r\nContent-Type: application/json\r\n\r\n";
 
 int nonb_write_headers(int fd, char* bufp, int nleft, dict_epoll_data *ptr) {
     int nwritten;
@@ -158,7 +157,8 @@ void handle_request(dict_epoll_data *ptr, char uri[]) {
                 memcpy(headers + header_length, gzip_header, 10);
                 header_length += 10;
             }
-            int cont = nonb_write_headers(ptr->sock_fd, headers, header_length, ptr);
+            int cont = nonb_write_headers(ptr->sock_fd, headers,
+                                          header_length, ptr);
             if (cont) {
                 // 2 byte for size, 1 byte for zipped or not
                 nonb_write_body(ptr->sock_fd, loc + 2, data_size, ptr);
@@ -183,14 +183,10 @@ void handle_request(dict_epoll_data *ptr, char uri[]) {
 #endif
         }
 #ifdef PRODUCTION
-        else {
-            // use gziped js
-            if(uri[uri_length-2] == 'j' && uri[uri_length-1] == 's') {
-                char gziped_uri[MAXLINE];
-                memcpy(gziped_uri, uri, uri_length);
-                memcpy(gziped_uri + uri_length, ".gz", 3);
-                uri = gziped_uri;
-            }
+        else if
+            (uri[uri_length-2] == 'j' && uri[uri_length-1] == 's') {
+            // use gziped js, uri is large enough
+            strcat(uri, ".gz");
         }
 #endif
 
