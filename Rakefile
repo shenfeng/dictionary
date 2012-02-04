@@ -72,7 +72,7 @@ end
 
 desc "deploy"
 task :deploy do
-  sh "./deploy"
+  sh "scripts/deploy"
 end
 
 desc "minify js"
