@@ -21,8 +21,8 @@ static char gzip_header[] = {
     0                     // Operating system (OS)
 };
 
-static char *json_headers = "HTTP/1.1 200 OK\r\nContent-Length: %lu\r\nCache-Control: max-age=360000, public\r\nContent-Type: application/json\r\n\r\n";
-static char *gziped_json_headers = "HTTP/1.1 200 OK\r\nContent-Length: %lu\r\nCache-Control: max-age=360000, public\r\nContent-Encoding: gzip\r\nContent-Type: application/json\r\n\r\n";
+static char *json_headers = "HTTP/1.1 200 OK\r\nContent-Length: %lu\r\nCache-Control: max-age=86400, public\r\nContent-Type: application/json\r\n\r\n";
+static char *gziped_json_headers = "HTTP/1.1 200 OK\r\nContent-Length: %lu\r\nCache-Control: max-age=86400, public\r\nContent-Encoding: gzip\r\nContent-Type: application/json\r\n\r\n";
 
 int nonb_write_headers(int fd, char* bufp, int nleft, dict_epoll_data *ptr) {
     int nwritten;
