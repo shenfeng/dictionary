@@ -25,4 +25,4 @@ test: test.c epoll.h
 	$(CC) $(CFLAGS) -o test test.c -DTEST_CLIENT -D_POSIX_SOURCE -DHANDLE_STATIC
 
 clean:
-	rm network search client dict a.out e -f
+	rm network test search client dict a.out e -f
