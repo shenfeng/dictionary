@@ -5,6 +5,9 @@ set -e
 ABSOLUTE_PATH=$(readlink -f $0)
 DICT_CODE_ROOT="${ABSOLUTE_PATH%/*/*}"
 
+cd $DICT_CODE_ROOT
+rake jstemple
+
 cp $DICT_CODE_ROOT/server/dbdata /tmp
 cd $DICT_CODE_ROOT/server
 make

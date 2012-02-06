@@ -195,6 +195,7 @@
       if(!Array.isArray(data)) { data = [data]; }
       var html = to_html(tmpls.explain, {
         items: data,
+        pronounce: data[0].p,
         word: data[0].w || lookup_word
       });
       $("#explain").empty().append(html);

@@ -1,4 +1,9 @@
-<h2>{{word}}</h2>
+<div class="word">
+  <h2>{{word}}</h2>
+  {{#pronounce}}
+    <span class="pronounce">[{{pronounce}}]</span>
+  {{/pronounce}}
+</div>
 <ul class="items">
   {{#items}}
     <li>
