@@ -1,7 +1,6 @@
 #include "network.h"
 #include "rio.h"
-#include "epoll.h"
-
+#include "main.h"
 
 void make_socket_non_blokcing(int sfd) {
     int flags;

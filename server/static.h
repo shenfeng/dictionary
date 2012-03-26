@@ -1,7 +1,7 @@
 #ifndef _STATIC_H_
 #define _STATIC_H_
 
-#include "epoll.h"
+#include "main.h"
 #include "rio.h"
 #include <arpa/inet.h>          /* inet_ntoa */
 #include <dirent.h>

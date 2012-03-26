@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/types.h>
-#include "epoll.h"
+#include "main.h"
 
 int main(int argc, char** argv) {
     dict_epoll_data *p1 = malloc(sizeof(dict_epoll_data)), *p2;
