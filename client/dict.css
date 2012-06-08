@@ -52,3 +52,8 @@ p.phrase {
     display: inline-block;
 }
 .pronounce { margin-left: 10px; color: green; }
+
+body {
+    color: black;
+    font-family: 'Lucida Grande', 'Helvetica Neue' helvetica, arial, verdana, sans-serif;
+}
