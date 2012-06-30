@@ -1,7 +1,7 @@
 # A simple online english dictionary
 
 A simple and ease to use English
-[dictionary](http://shenfeng.me:9090/) written in C using
+[dictionary](http://dict.shenfeng.me/) written in C using
 epoll in server side and javascript in client side. Data is extracted
 from LDOCE
 

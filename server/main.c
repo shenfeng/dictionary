@@ -63,6 +63,7 @@ int nonb_sendfile(dict_epoll_data *ptr) {
     }
     if (ptr->static_fd) {       // finish send file
         close(ptr->static_fd);
+        close(ptr->sock_fd);              //  do not keep-alive
         ptr->static_fd = 0;
     }
     return 1;
@@ -84,7 +85,8 @@ int nonb_write_body(int fd, char* bufp, int nleft, dict_epoll_data *ptr) {
         nleft -= nwritten;
         bufp += nwritten;
     }
-    ptr->body_cnt = 0;       // done all
+    close(fd);                  // do not keep-alive
+    ptr->body_cnt = 0;          // done all
     return 1;
 }
 
