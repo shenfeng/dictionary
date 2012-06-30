@@ -4,7 +4,7 @@
 img { float: left; width: 350px; padding: 3px 4px; border: 1px solid #eee; }
 html, body { margin: 0; padding: 0; }
 html { overflow-y: scroll; }
-#page-wrap { width: 1060px; margin: 0 auto; }
+#page-wrap { width: 1060px; margin: 0 auto; clear: both; }
 #ac { width: 100%; }
 #ac ul { padding: 0; margin: 0; list-style: none; }
 #ac li { padding: 3px 4px; }
@@ -14,7 +14,7 @@ html { overflow-y: scroll; }
 .egs li p { padding: 0; margin: 0; }
 .egs li { font-family: sans-serif; font-size: 13px; }
 .meaning { margin: 0.5em 0; font-size: 14px; }
-h2 { margin-bottom: 0; }
+h2 { margin-bottom: 0; padding-left: 10px; }
 .items { padding: 0; list-style: none; }
 .type {
     padding-left: 15px;
@@ -31,15 +31,19 @@ p.phrase {
     font-size: 13.5px;
     font-family: monospace;
 }
-#explain { float: right; padding-left: 10px; width: 720px; }
+#explain {
+    float: right;
+    /* padding-left: 10px; */
+    padding: 0 10px 30px 0;
+    width: 720px;
+}
 #selection {
     position: fixed;
     width: 330px;
-    float: left;
     height: 100%;
     overflow-y: auto;
     overflow-x: hidden;
-    box-shadow: 1px 2px 1px #ccc;
+    border-right: 1px solid #CCC;
 }
 #q {
     margin: 30px 0 0 0;
@@ -55,11 +59,42 @@ p.phrase {
 
 body {
     color: black;
-    font-family: 'Lucida Grande', 'Helvetica Neue' helvetica, arial, verdana, sans-serif;
+    font-family: 'Lucida Grande', 'Helvetica Neue',  helvetica, arial, verdana, sans-serif;
 }
 
 #loading {
     margin: 100px;
     font-size: 26px;
     text-align: center;
+}
+
+#footer {
+    font-size: 12px;
+    position: fixed;
+    bottom: 0;
+    background: #eee;
+    width: 100%;
+}
+
+#footer .content {
+    width: 900px;
+    margin: 4px auto;
+}
+
+#footer a {
+    text-decoration: none;
+}
+
+#footer ul {
+    margin: 0 auto;
+    width: 300px;
+    /* margin: 0 0 0 400px; */
+    padding: 0;
+}
+#footer ul li {
+    margin: 0 8px;
+    display: inline;
+}
+a {
+    outline: none;
 }
