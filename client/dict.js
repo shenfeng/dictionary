@@ -129,7 +129,7 @@
     if(select && !force_refresh) {
       var already_show = false;
       $("#ac li").each(function (index, li) {
-        if($(li).text().trim() === select) {
+        if($.trim($(li).text()) === select) {
           already_show = true;
           $("li.selected").removeClass('selected');
           $(li).addClass('selected');
@@ -144,7 +144,7 @@
         $("#ac li:first").addClass('selected');
       } else {
         $("#ac li").each(function (index, li) {
-          if($(li).text().trim() === select) {
+          if($.trim($(li).text()) === select) {
             $(li).addClass('selected');
           }
         });
@@ -192,7 +192,10 @@
       if(!update_value) {
         $q.val(q);
       }
-      if(!Array.isArray(data)) { data = [data]; }
+      if(!data.length) {        // is array
+        data = [data];
+      }
+      // if(!Array.isArray(data)) { data = [data]; }
       var html = to_html(tmpls.explain, {
         items: data,
         pronounce: data[0].p,
@@ -205,7 +208,7 @@
   }
 
   function auto_complete (q) {
-    q = q || $q.val().trim().toLowerCase();
+    q = q || $.trim($q.val()).toLowerCase();
     if(q && q !== old_q) {
       old_q = q;
       var result = [],  c = q.charAt(0),
@@ -237,7 +240,7 @@
 
   $(document).keydown(function (e) {
     var which = e.which;
-    $selected = $("li.selected");
+    var $selected = $("li.selected");
     switch(which) {
     case 27:                    // ESC
       break;
@@ -258,7 +261,7 @@
       if($selected.length && $next.length) {
         $selected.removeClass('selected');
         $next.addClass('selected');
-        show_search_result($next.text().trim());
+        show_search_result($.trim($next.text()));
       }
       break;
     case 75:                    // K
@@ -267,7 +270,7 @@
       if($selected.length && $prev) {
         $selected.removeClass('selected');
         $prev.addClass('selected');
-        show_search_result($prev.text().trim());
+        show_search_result($.trim($prev.text()));
       }
       break;
     }
@@ -291,7 +294,7 @@
       $("li.selected").removeClass('selected');
       var $this = $(this);
       $this.addClass('selected');
-      show_search_result($this.text().trim());
+      show_search_result($.trim($this.text()));
     }
   });
 
