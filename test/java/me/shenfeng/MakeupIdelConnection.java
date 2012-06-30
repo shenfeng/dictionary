@@ -26,36 +26,15 @@ public class MakeupIdelConnection {
     public static void main(String[] args) throws IOException {
 
         final Selector selector = Selector.open();
-
-        InetSocketAddress locals[] = {
-                // new InetSocketAddress("127.0.0.1", 9090),
-                // new InetSocketAddress("192.168.1.114", 9090),
-                // new InetSocketAddress("192.168.1.21", 9090),
-                new InetSocketAddress("192.168.1.22", 9090),
-                new InetSocketAddress("192.168.1.23", 9090),
-                new InetSocketAddress("192.168.1.24", 9090),
-                new InetSocketAddress("192.168.1.25", 9090),
-                new InetSocketAddress("192.168.1.26", 9090),
-                new InetSocketAddress("192.168.1.27", 9090),
-                new InetSocketAddress("192.168.1.28", 9090),
-                new InetSocketAddress("192.168.1.29", 9090),
-                new InetSocketAddress("192.168.1.30", 9090),
-                new InetSocketAddress("192.168.1.31", 9090),
-                new InetSocketAddress("192.168.1.32", 9090),
-                new InetSocketAddress("192.168.1.33", 9090),
-                new InetSocketAddress("192.168.1.34", 9090),
-                new InetSocketAddress("192.168.1.35", 9090),
-                new InetSocketAddress("192.168.1.36", 9090),
-                new InetSocketAddress("192.168.1.37", 9090),
-
-        };
-
-        // InetSocketAddress remote = new InetSocketAddress("192.168.1.114",
-        // 9090);
+        InetSocketAddress locals[] = new InetSocketAddress[32];
+        for (int i = 0; i < locals.length; i++) {
+            locals[i] = new InetSocketAddress("192.168.1." + (21 + i), 9090);
+        }
 
         long start = System.currentTimeMillis();
         int connected = 0;
         int currentConnectionPerIP = 0;
+
         while (true) {
             if (System.currentTimeMillis() - start > 1000 * 60 * 10) {
                 break;
