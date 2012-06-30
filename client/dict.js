@@ -303,6 +303,7 @@
     show_search_result(hash, true);
   } else {
     show_empty_query_candidates();
+    $("#explain").empty();
   }
 
   $q.focus();

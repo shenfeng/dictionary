@@ -57,3 +57,9 @@ body {
     color: black;
     font-family: 'Lucida Grande', 'Helvetica Neue' helvetica, arial, verdana, sans-serif;
 }
+
+#loading {
+    margin: 100px;
+    font-size: 26px;
+    text-align: center;
+}
