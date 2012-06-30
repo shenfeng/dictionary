@@ -3,9 +3,7 @@
 #include "search.h"
 #include "network.h"
 
-#ifdef HANDLE_STATIC
 #include "static.h"
-#endif
 
 #define GZIP_MAGIC 0x8b1f
 static char gzip_header[] = {
@@ -44,7 +42,6 @@ int nonb_write_headers(int fd, char* bufp, int nleft, dict_epoll_data *ptr) {
     return 1;
 }
 
-#ifdef HANDLE_STATIC
 int nonb_sendfile(dict_epoll_data *ptr) {
     int nsent;
     off_t offset = ptr->file_offset;
@@ -64,13 +61,12 @@ int nonb_sendfile(dict_epoll_data *ptr) {
                ptr->sock_fd, ptr->static_fd, nsent);
 #endif
     }
-    if (ptr->static_fd) {
+    if (ptr->static_fd) {       // finish send file
         close(ptr->static_fd);
         ptr->static_fd = 0;
     }
     return 1;
 }
-#endif
 
 int nonb_write_body(int fd, char* bufp, int nleft, dict_epoll_data *ptr) {
     int nwritten;
@@ -113,10 +109,8 @@ void accept_incoming(int listen_sock, int epollfd) {
         data->sock_fd = conn_sock;
         data->body_cnt = 0;     // init, default value
         data->headers_cnt = 0;
-#ifdef HANDLE_STATIC
         data->file_cnt = 0;
         data->static_fd = 0;
-#endif
         ev.data.ptr = data;
         ev.events = EPOLLIN | EPOLLOUT | EPOLLRDHUP| EPOLLET; //  read, edge triggered
         if (epoll_ctl(epollfd, EPOLL_CTL_ADD, conn_sock, &ev) == -1) {
@@ -130,11 +124,9 @@ void close_and_clean(dict_epoll_data *ptr, int epollfd) {
     // closing a file descriptor cause it to be removed from all epoll sets automatically
     // epoll_ctl(epollfd, EPOLL_CTL_DEL, ptr->sock_fd, NULL);
     close(ptr->sock_fd);
-#ifdef HANDLE_STATIC
     if (ptr->static_fd) {
         close(ptr->static_fd);
     }
-#endif
     free(ptr);
 }
 
@@ -169,9 +161,7 @@ void handle_request(dict_epoll_data *ptr, char uri[]) {
         } else {
             client_error(ptr->sock_fd, 404, "Not found", "");
         }
-    }
-#ifdef HANDLE_STATIC
-    else {
+    } else {
         uri = uri + 1;
         int uri_length = strlen(uri);
         if (uri_length == 0) {
@@ -183,20 +173,15 @@ void handle_request(dict_epoll_data *ptr, char uri[]) {
 #endif
         }
 #ifdef PRODUCTION
-        else if
-            (uri[uri_length-2] == 'j' && uri[uri_length-1] == 's') {
-            // use gziped js, uri is large enough
-            strcat(uri, ".gz");
+        else if (uri[uri_length-2] == 'j' && uri[uri_length-1] == 's') {
+            strcat(uri, ".gz"); // use gziped js, uri is large enough
         }
 #endif
-
-
 #ifdef DEBUG
         printf("sock_fd %d, request file %s\n", ptr->sock_fd, uri);
 #endif
         serve_file(ptr, uri);
     }
-#endif
 }
 
 void process_request(dict_epoll_data *ptr, int epollfd) {
@@ -243,14 +228,12 @@ void write_response(dict_epoll_data *ptr, int epollfd) {
         char *bufp = ptr->body_bufptr;
         nonb_write_body(ptr->sock_fd, bufp, strlen(bufp), ptr);
     }
-#ifdef HANDLE_STATIC
     if (ptr->file_cnt) {
         nonb_sendfile(ptr);
     }
-#endif
 }
 
-int enter_loop(int listen_sock, int epollfd) {
+void enter_loop(int listen_sock, int epollfd) {
     int nfds;
     uint32_t events;
     struct epoll_event epoll_events[MAX_EVENTS];

@@ -39,22 +39,18 @@ typedef struct {
     char headers[RESP_HEADER_LENTH];
     char *headers_bufptr;       // header pointer
     int headers_cnt;            // header length unwrite
-#ifdef HANDLE_STATIC
     int static_fd;
     int file_cnt;               // unwrite file
     off_t file_offset;
-#endif
 } dict_epoll_data;
 
 int open_nonb_listenfd(int port);
 int nonb_write_headers(int fd, char* bufp, int nleft, dict_epoll_data *ptr);
 int nonb_write_body(int fd, char* bufp, int nleft, dict_epoll_data *ptr);
-#ifdef HANDLE_STATIC
 int nonb_sendfile(dict_epoll_data *ptr);
-#endif
 void accept_incoming(int listen_sock, int epollfd);
 void close_and_clean(dict_epoll_data *ptr, int epollfd);
-int enter_loop(int listen_sock, int epollfd);
+void enter_loop(int listen_sock, int epollfd);
 void process_request(dict_epoll_data *ptr, int epollfd);
 void write_response(dict_epoll_data *ptr, int epollfd);
 

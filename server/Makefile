@@ -2,14 +2,10 @@ CC = c99
 CFLAGS = -Wall -O2
 
 dict: clean main.c main.h rio.h rio.c search.c search.h static.c static.h
-	$(CC) $(CFLAGS) -o dict rio.c main.c network.c search.c static.c -DVERBOSE -DDEBUG -DHANDLE_STATIC -D_GNU_SOURCE
+	$(CC) $(CFLAGS) -o dict rio.c main.c network.c search.c static.c -D_GNU_SOURCE
 
 dist: clean
-	$(CC) $(CFLAGS) -o dict  rio.c main.c network.c search.c static.c -D_GNU_SOURCE -DHANDLE_STATIC -DPRODUCTION
-	strip dict
-
-dist_no_static_handing: clean
-	$(CC) $(CFLAGS) -o dict  rio.c main.c network.c search.c -D_GNU_SOURCE
+	$(CC) $(CFLAGS) -o dict  rio.c main.c network.c search.c static.c -D_GNU_SOURCE -DPRODUCTION
 	strip dict
 
 epoll: network.c network.h main.c
