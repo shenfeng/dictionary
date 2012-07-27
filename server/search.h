@@ -10,7 +10,7 @@
 #include <sys/types.h>
 #include <unistd.h>
 
-#define FILENAME "/tmp/dbdata"
+#define FILENAME "../server/dbdata"
 
 // #define TEST_SEARCH
 

@@ -40,7 +40,7 @@ rsync --rsh='ssh' -vr --delete --delete-excluded \
 
 remote_run "sudo cp ${TARGET_DIR}/conf/shenfeng.me /etc/nginx/sites-available"
 remote_run "cd ${TARGET_DIR}/server/ && make dist"
-remote_run "cp ${TARGET_DIR}/server/dbdata /tmp"
+# remote_run "cp ${TARGET_DIR}/server/dbdata /tmp"
 remote_run "sudo cp ${TARGET_DIR}/scripts/dictionary /etc/init.d/"
 remote_run "sudo chmod +x /etc/init.d/dictionary"
 remote_run "sudo /etc/init.d/dictionary restart"

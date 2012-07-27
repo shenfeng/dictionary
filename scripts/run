@@ -8,7 +8,7 @@ DICT_CODE_ROOT="${ABSOLUTE_PATH%/*/*}"
 cd $DICT_CODE_ROOT
 rake jstemple
 
-cp $DICT_CODE_ROOT/server/dbdata /tmp
+# cp $DICT_CODE_ROOT/server/dbdata /tmp
 cd $DICT_CODE_ROOT/server
 make
 cd $DICT_CODE_ROOT/client && ../server/dict
