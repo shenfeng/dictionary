@@ -44,7 +44,7 @@ remote_run "cd ${TARGET_DIR}/server/ && make dist"
 remote_run "sudo cp ${TARGET_DIR}/scripts/dictionary /etc/init.d/"
 remote_run "sudo chmod +x /etc/init.d/dictionary"
 remote_run "sudo /etc/init.d/dictionary restart"
-remote_run "sudo service nginx restart"
+remote_run "sudo service nginx reload"
 
 rm client/dict.html.gz -f
 rm client/dict-min.js.gz -f
