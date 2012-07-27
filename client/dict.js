@@ -7,7 +7,7 @@
       $ac = $("#ac"),
       to_html = Mustache.to_html,
       ajax_queue = [],
-      max_candiates = 27,
+      max_candiates = Math.floor(($(window).height() - 120) / 30),
       all_words = window._WORDS_,
       word_map = window._MAPS_,
       tmpls = window.D.tmpls,

@@ -4,7 +4,7 @@
 img { float: left; width: 350px; padding: 3px 4px; border: 1px solid #eee; }
 html, body { margin: 0; padding: 0; }
 html { overflow-y: scroll; }
-#page-wrap { width: 1060px; margin: 0 auto; clear: both; }
+#page-wrap { width: 1000px; margin: 0 auto; clear: both; }
 #ac { width: 100%; }
 #ac ul { padding: 0; margin: 0; list-style: none; }
 #ac li { padding: 3px 4px; }
@@ -12,34 +12,32 @@ html { overflow-y: scroll; }
 #ac li:hover { background: #ddd; }
 #ac li.selected { background: #ccc; }
 .egs li p { padding: 0; margin: 0; }
-.egs li { font-family: sans-serif; font-size: 13px; }
-.meaning { margin: 0.5em 0; font-size: 14px; }
+.egs li { font-family: sans-serif; font-size: 14px; }
+.meaning { margin: 0.5em 0; }
 h2 { margin-bottom: 0; padding-left: 10px; }
 .items { padding: 0; list-style: none; }
 .type {
     padding-left: 15px;
     font-weight: bold;
     font-family: monospace;
-    font-size: 18px;
 }
 .example { color: #222; }
-.group, .help { color: #111; font-size: 13px; }
-.explain { font-size: 14px; margin: 0.5em 0; }
+.group, .help { color: #111; }
+.explain { margin: 0.5em 0; }
 p.phrase {
     margin: 0.5em 0;
     color: blue;
-    font-size: 13.5px;
     font-family: monospace;
 }
 #explain {
     float: right;
     /* padding-left: 10px; */
-    padding: 0 10px 30px 0;
-    width: 720px;
+    padding: 0 10px 30px 8px;
+    width: 702px;
 }
 #selection {
     position: fixed;
-    width: 330px;
+    width: 280px;
     height: 100%;
     overflow-y: auto;
     overflow-x: hidden;
@@ -59,7 +57,9 @@ p.phrase {
 
 body {
     color: black;
-    font-family: 'Lucida Grande', 'Helvetica Neue',  helvetica, arial, verdana, sans-serif;
+    line-height: 1.5;
+    font-size: 16px;
+    font-family: 'lucida grande',tahoma,verdana,arial,sans-serif;
 }
 
 #loading {
@@ -77,7 +77,7 @@ body {
 }
 
 #footer .content {
-    width: 900px;
+    width: 1000px;
     margin: 4px auto;
 }
 
@@ -86,9 +86,9 @@ body {
 }
 
 #footer ul {
+    float: right;
     margin: 0 auto;
-    width: 300px;
-    /* margin: 0 0 0 400px; */
+    /* width: 380px; */
     padding: 0;
 }
 #footer ul li {
