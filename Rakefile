@@ -53,6 +53,7 @@ def gen_jstempls()
   end
   data += "window.D = {tmpls: tmpls};})();\n"
   File.open("client/tmpls.js", 'w') {|f| f.write(data)}
+  sh "cp client/tmpls.js android/assets/tmpls.js"
 end
 
 desc "generate js template"

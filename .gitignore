@@ -17,3 +17,10 @@ client/bimgs
 /checkouts
 /.lein-deps-sum
 /server/test
+/android/bin/
+/android/local.properties
+/android/gen
+/android/.settings
+/android/proguard-project.txt
+/android/res/raw/dbdata
+/android/assets/tmpls.js
