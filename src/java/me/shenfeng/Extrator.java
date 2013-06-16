@@ -96,8 +96,7 @@ public class Extrator {
         }
 
         if (t3 != null || pastpart != null || pasttense != null) {
-            System.out.println(item.word + "\t" + pasttense + "\t" + pastpart
-                    + "\t" + t3);
+            System.out.println(item.word + "\t" + pasttense + "\t" + pastpart + "\t" + t3);
         }
 
         Elements imgs = content.select(".preview");

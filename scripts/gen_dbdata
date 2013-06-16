@@ -6,8 +6,10 @@ ABSOLUTE_PATH=$(readlink -f $0)
 DICT_CODE_ROOT="${ABSOLUTE_PATH%/*/*}"
 cd $DICT_CODE_ROOT
 
+CP=`lein classpath`
+
 rm classes -rf
 lein javac
 java -Xmx1500m -Xms1500m \
-    -cp lib/*:src/:classes/ clojure.main \
+    -cp $CP clojure.main \
     -e "(require 'ldoce.core) (ldoce.core/split-to-disk)"

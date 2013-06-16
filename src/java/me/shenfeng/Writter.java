@@ -42,11 +42,9 @@ public class Writter {
         }
     }
 
-    public static void splitToDisk(IFn toJsonStr)
-            throws FileNotFoundException, IOException {
+    public static void splitToDisk(IFn toJsonStr) throws FileNotFoundException, IOException {
 
-        File dir = new File(
-                "/home/feng/Downloads/www.ldoceonline.com/dictionary");
+        File dir = new File("/home/feng/Downloads/www.ldoceonline.com/dictionary");
         Map<String, List<DictItem>> items = new TreeMap<String, List<DictItem>>();
         File[] files = dir.listFiles();
         int count = 0;
@@ -64,8 +62,7 @@ public class Writter {
         write(items, toJsonStr);
 
         // generate js
-        BufferedWriter writer = new BufferedWriter(new FileWriter(
-                "/tmp/allwords.js"));
+        BufferedWriter writer = new BufferedWriter(new FileWriter("/tmp/allwords.js"));
         writer.write("window._WORDS_=");
         writer.write((String) toJsonStr.invoke(allWords));
         writer.write(";");
@@ -84,8 +81,7 @@ public class Writter {
         writer.close();
     }
 
-    public static boolean removeIfNecessary(
-            Map<String, List<DictItem>> items, String oldWord,
+    public static boolean removeIfNecessary(Map<String, List<DictItem>> items, String oldWord,
             String derivedWord) {
         if (derivedWord != null && items.get(derivedWord) != null
                 && !derivedWord.equals(oldWord)) {
@@ -95,8 +91,7 @@ public class Writter {
             while (iterator.hasNext()) {
                 DictItem i = iterator.next();
                 // System.out.println(word + ": " + i);
-                if (i.getL().size() == 1
-                        && i.getL().get(0).examples.size() == 0
+                if (i.getL().size() == 1 && i.getL().get(0).examples.size() == 0
                         && i.toString().length() < 60) {
                     iterator.remove();
                 }
@@ -110,8 +105,8 @@ public class Writter {
         return false;
     }
 
-    public static Map<String, String> removePastTense(
-            Map<String, List<DictItem>> items, TreeSet<String> words) {
+    public static Map<String, String> removePastTense(Map<String, List<DictItem>> items,
+            TreeSet<String> words) {
         System.out.println("items count " + items.size());
         Map<String, String> maps = new HashMap<String, String>();
         for (String word : words) {

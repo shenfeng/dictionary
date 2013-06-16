@@ -33,7 +33,7 @@ public class TestExtract {
 	@Test
 	public void testWent() throws Exception {
 		DictItem current = get(new File(
-				"/home/feng/www.ldoceonline.com/dictionary/went"));
+				"/home/feng/Downloads/www.ldoceonline.com/dictionary/went"));
 
 		System.out.println(current);
 		System.out.println(current.toString().length());
@@ -148,7 +148,7 @@ public class TestExtract {
 
 	@Test
 	public void testParseAll() throws FileNotFoundException, IOException {
-		File dir = new File("/home/feng/www.ldoceonline.com/dictionary");
+		File dir = new File("/home/feng/Downloads/www.ldoceonline.com/dictionary");
 		File[] files = dir.listFiles();
 		int length = 0;
 		int count = 0;

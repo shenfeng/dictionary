@@ -41,12 +41,11 @@ public class CompressHtml {
                 htmlResult.add(line);
             } else if (line.startsWith("<script")) {
                 if (!jsInserted) {
-                    htmlResult
-                            .add("<script src=\"" + min_js + "\"></script>");
+                    htmlResult.add("<script src=\"" + min_js + "\"></script>");
                 }
                 jsInserted = true;
             } else {
-                if(line.indexOf("stylesheet") == -1) {
+                if (line.indexOf("stylesheet") == -1) {
                     htmlResult.add(line);
                 }
             }
