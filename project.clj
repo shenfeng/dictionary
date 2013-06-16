@@ -3,6 +3,7 @@
   :dependencies [[org.clojure/clojure "1.3.0"]
                  [me.shenfeng/async-ring-adapter "1.0.1"]
                  [org.clojure/data.json "0.1.2"]
+                 [mysql/mysql-connector-java "5.1.21"]
                  [ring/ring-core "1.0.1"]
                  [commons-io "2.1"]
                  [org.jsoup/jsoup "1.6.1"]
@@ -17,7 +18,7 @@
              ;; "-XX:-UseLoopPredicate"
              "-Xmx2048m"
              "-Xms2048m"]
-  :javac-options {:source "1.6" :target "1.6" :debug "true" :fork "true"}
+  ;; :javac-options {:source "1.6" :target "1.6" :debug "true" :fork "true"}
   :java-source-paths ["src/java"]
   :dev-dependencies [[swank-clojure "1.4.0-SNAPSHOT"]
                      [junit/junit "4.8.2"]])

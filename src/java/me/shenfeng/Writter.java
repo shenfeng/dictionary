@@ -8,7 +8,12 @@ import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -42,11 +47,13 @@ public class Writter {
         }
     }
 
-    public static void splitToDisk(IFn toJsonStr) throws FileNotFoundException, IOException {
+    public static void splitToDisk(IFn toJsonStr) throws FileNotFoundException, IOException,
+            SQLException {
 
         File dir = new File("/home/feng/Downloads/www.ldoceonline.com/dictionary");
         Map<String, List<DictItem>> items = new TreeMap<String, List<DictItem>>();
         File[] files = dir.listFiles();
+//        files = Arrays.copyOf(files, 10);
         int count = 0;
         for (File f : files) {
             if (f.isFile()) {
@@ -136,10 +143,15 @@ public class Writter {
     }
 
     public static void write(Map<String, List<DictItem>> items, IFn toJsonStr)
-            throws IOException {
+            throws IOException, SQLException {
         FileOutputStream fs = new FileOutputStream("/tmp/dbdata");
         int count = items.size();
         fs.write(getBytes(count)); // how many words
+
+        Connection con = DriverManager.getConnection("jdbc:mysql://192.168.1.101/dictionary",
+                "feng", "");
+        
+        PreparedStatement ps = con.prepareStatement("insert into words (word, meaning) values (?, ?)");
 
         for (Map.Entry<String, List<DictItem>> entry : items.entrySet()) {
             String word = entry.getKey();
@@ -151,6 +163,10 @@ public class Writter {
                 // save 2 byte
                 json = (String) toJsonStr.invoke(ds.get(0));
             }
+            ps.setString(1, word);
+            ps.setString(2, json);
+            ps.executeUpdate();
+            
             fs.write(word.getBytes());
             fs.write(0); // NULL terminate String@
             byte[] bytes = json.getBytes();
