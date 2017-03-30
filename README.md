@@ -12,7 +12,7 @@ from LDOCE
 3. `/test/java`  Util test and performance test code
 4. `/src`  Clojure and java code to generate the dbdata file
 
-# dbdata file formDat
+# dbdata file format
 
 * first 2 bytes: how many words in this file. big-endian
 * the rest are word items, one by one
